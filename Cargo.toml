@@ -1,0 +1,8 @@
+[package]
+name = "unit_distance_graph"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+color-eyre = "0.6.5"
+num = "0.4.3"
