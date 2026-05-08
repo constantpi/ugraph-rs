@@ -37,7 +37,7 @@ pub fn graph_to_polynomials(graph: &Graph) -> Vec<Polynomial> {
             if node > neighbor {
                 continue; // 同じ辺を二回処理しないようにする
             }
-            let mut p = Polynomial::new();
+            let mut p = Polynomial::zero();
             // (x_node - x_neighbor)^2 + (y_node - y_neighbor)^2 - 1 = 0 を表す多項式を生成
             let x_node = node.get_id() * 2; // x座標の変数ID
             let y_node = node.get_id() * 2 + 1; // y座標の変数ID
@@ -55,10 +55,10 @@ pub fn graph_to_polynomials(graph: &Graph) -> Vec<Polynomial> {
     }
     // 最初の頂点を原点に、それに隣接する頂点をx軸上に固定するための多項式を追加
     if let Some(first_node) = graph.iter_nodes().next() {
-        let mut px = Polynomial::new();
+        let mut px = Polynomial::zero();
         let x_first = first_node.get_id() * 2; // x座標の変数ID
         px.add_term(x_term(n, x_first), one.clone()); // x_first = 0
-        let mut py = Polynomial::new();
+        let mut py = Polynomial::zero();
         let y_first = first_node.get_id() * 2 + 1; // y座標の変数ID
         py.add_term(x_term(n, y_first), one.clone()); // y_first = 0
         polynomials.push(px);
@@ -66,12 +66,12 @@ pub fn graph_to_polynomials(graph: &Graph) -> Vec<Polynomial> {
         if let Some(neighbors) = graph.neighbors(first_node)
             && let Some(neighbor) = neighbors.iter().min()
         {
-            let mut p = Polynomial::new();
+            let mut p = Polynomial::zero();
             let x_neighbor = neighbor.get_id() * 2; // x座標の変数ID
             p.add_term(x_term(n, x_neighbor), one.clone()); // x_neighbor = 1
             polynomials.push(p);
             let y_neighbor = neighbor.get_id() * 2 + 1; // y座標の変数ID
-            let mut p = Polynomial::new();
+            let mut p = Polynomial::zero();
             p.add_term(x_term(n, y_neighbor), one.clone()); // y_neighbor = 0
             p.add_term(constant_term(n), minus_one.clone()); // -1
             polynomials.push(p);

@@ -123,7 +123,7 @@ impl Ord for Exponent {
 }
 
 impl Polynomial {
-    pub fn new() -> Self {
+    pub fn zero() -> Self {
         Polynomial {
             terms: HashMap::new(),
         }
@@ -148,19 +148,19 @@ impl Polynomial {
 
     /// iteratorを返すメソッド
     /// ただし、項の順序はLexicographic Orderでソートされている必要がある
-    fn lex_iter(&self) -> impl Iterator<Item = (&Exponent, &BigRational)> {
+    pub fn lex_iter(&self) -> impl Iterator<Item = (&Exponent, &BigRational)> {
         let mut terms = self.raw_iter().collect::<Vec<_>>();
         terms.sort_by(|(exp_a, _), (exp_b, _)| exp_b.cmp(exp_a)); // 降順でソート
         terms.into_iter()
     }
 
-    fn raw_iter(&self) -> impl Iterator<Item = (&Exponent, &BigRational)> {
+    pub fn raw_iter(&self) -> impl Iterator<Item = (&Exponent, &BigRational)> {
         self.terms.iter()
     }
 
     pub fn mul_term(&self, exponent: Exponent, coefficient: BigRational) -> Self {
         if coefficient.is_zero() {
-            Polynomial::new()
+            Polynomial::zero()
         } else {
             let new_terms = self
                 .raw_iter()
@@ -171,7 +171,7 @@ impl Polynomial {
     }
     fn mul_rational(&self, coefficient: BigRational) -> Self {
         if coefficient.is_zero() {
-            Polynomial::new()
+            Polynomial::zero()
         } else {
             let new_terms = self
                 .raw_iter()

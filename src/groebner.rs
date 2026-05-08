@@ -9,7 +9,7 @@ use crate::polynomial::Polynomial;
 /// 複数の多項式による割り算
 fn multi_division(dividend: &Polynomial, divisors: &[Polynomial]) -> Polynomial {
     // ここに割り算のアルゴリズムを実装
-    let mut remainder = Polynomial::new();
+    let mut remainder = Polynomial::zero();
     let mut p = dividend.clone();
 
     while let Some((exponent, coefficient)) = p.get_lt() {
@@ -155,7 +155,7 @@ mod tests {
     #[test]
     fn test_groebner_basis() {
         let f1 = {
-            let mut p = Polynomial::new();
+            let mut p = Polynomial::zero();
             p.add_term(
                 Exponent::new(vec![1, 0, 0]),
                 BigRational::from_integer(1.into()),
@@ -167,7 +167,7 @@ mod tests {
             p
         };
         let f2 = {
-            let mut p = Polynomial::new();
+            let mut p = Polynomial::zero();
             p.add_term(
                 Exponent::new(vec![1, 0, 0]),
                 BigRational::from_integer(1.into()),
