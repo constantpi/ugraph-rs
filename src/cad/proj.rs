@@ -135,7 +135,7 @@ pub fn project_polynomial(polys: &[Polynomial]) -> Vec<Polynomial> {
     // 重複を削除する
     let mut unique_projected = Vec::new();
     for p in projected {
-        if !unique_projected.contains(&p) {
+        if !p.is_fully_constant() && !unique_projected.contains(&p) {
             unique_projected.push(p);
         }
     }
