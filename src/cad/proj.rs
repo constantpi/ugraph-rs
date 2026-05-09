@@ -91,7 +91,7 @@ pub fn project_polynomial(polys: &[Polynomial]) -> Vec<Polynomial> {
     let (constants, non_constants): (Vec<Polynomial>, Vec<Polynomial>) = polys
         .iter()
         .cloned()
-        .partition(|p| is_constant_for_last_variable(p));
+        .partition(is_constant_for_last_variable);
     let mut projected = Vec::new();
     for constant in constants {
         projected.push(constant.constant_term().unwrap());
@@ -99,7 +99,7 @@ pub fn project_polynomial(polys: &[Polynomial]) -> Vec<Polynomial> {
 
     let coeff_lists: Vec<Vec<Polynomial>> = non_constants
         .iter()
-        .filter_map(|p| collect_last_variable_coefficients(p))
+        .filter_map(collect_last_variable_coefficients)
         .collect();
 
     // proj1の計算

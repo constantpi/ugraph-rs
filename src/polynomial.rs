@@ -75,11 +75,6 @@ impl Exponent {
         let last = clone.0.pop()?;
         Some((last, Exponent(clone.0)))
     }
-
-    /// 一番後ろに変数の次数を追加する
-    pub fn push(&mut self, exp: u32) {
-        self.0.push(exp);
-    }
 }
 // ExponentにAdd トレイトを実装
 impl std::ops::Add for Exponent {
