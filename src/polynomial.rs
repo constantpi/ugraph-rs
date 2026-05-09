@@ -184,6 +184,22 @@ impl Polynomial {
     pub fn get_lt(&self) -> Option<(&Exponent, &BigRational)> {
         self.lex_iter().next()
     }
+
+    /// 末尾についての定数であれば一変数を除いた多項式を返す
+    pub fn constant_term(&self) -> Option<Polynomial> {
+        let mut constant = Polynomial::zero();
+        for (exp, coeff) in self.raw_iter() {
+            let Some((last, rest)) = exp.split_last() else {
+                return None; // 末尾の変数がない項がある場合はNoneを返す
+            };
+            if last == 0 {
+                constant.add_term(rest, coeff.clone());
+            } else {
+                return None; // 末尾の変数の次数が0でない項がある場合はNoneを返す
+            }
+        }
+        Some(constant)
+    }
 }
 
 // PolynomialにAdd トレイトを実装
