@@ -53,6 +53,50 @@ fn main() -> Result<()> {
     for (i, poly) in projected2.iter().enumerate() {
         println!("Projected polynomial {}: {}", i + 1, poly);
     }
+    println!("######################################################");
+    let f1 = {
+        let mut p = polynomial::Polynomial::zero();
+        p.add_term(
+            polynomial::Exponent::new(vec![1, 1]),
+            num::BigRational::from_integer(2431.into()),
+        );
+        p.add_term(
+            polynomial::Exponent::new(vec![1, 0]),
+            num::BigRational::from_integer((-2431).into()),
+        );
+        p.add_term(
+            polynomial::Exponent::new(vec![0, 1]),
+            num::BigRational::from_integer((-3301).into()),
+        );
+        p.add_term(
+            polynomial::Exponent::new(vec![0, 0]),
+            num::BigRational::from_integer(2685.into()),
+        );
+        p
+    };
+    let f2 = {
+        let mut p = polynomial::Polynomial::zero();
+        p.add_term(
+            polynomial::Exponent::new(vec![0, 2]),
+            num::BigRational::from_integer(1.into()),
+        );
+        p.add_term(
+            polynomial::Exponent::new(vec![4, 0]),
+            num::BigRational::from_integer(1.into()),
+        );
+        p.add_term(
+            polynomial::Exponent::new(vec![1, 1]),
+            num::BigRational::from_integer((-2).into()),
+        );
+        p
+    };
+    println!("f1: {}", f1);
+    println!("f2: {}", f2);
+    let projected = project_polynomial(&[f1, f2]);
+    for (i, poly) in projected.iter().enumerate() {
+        println!("Projected polynomial {}: {}", i + 1, poly);
+    }
+    println!("######################################################");
 
     let graph = generate_graph(4, &[(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)])?;
     for graph in simplify_graph(&graph)? {
