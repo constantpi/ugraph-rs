@@ -169,7 +169,7 @@ impl Polynomial {
             Polynomial { terms: new_terms }
         }
     }
-    fn mul_rational(&self, coefficient: BigRational) -> Self {
+    pub fn mul_rational(&self, coefficient: BigRational) -> Self {
         if coefficient.is_zero() {
             Polynomial::zero()
         } else {
@@ -231,6 +231,14 @@ impl std::ops::Mul for Polynomial {
         let mut ans = Polynomial { terms };
         ans.clean();
         ans
+    }
+}
+
+impl std::ops::AddAssign for Polynomial {
+    fn add_assign(&mut self, other: Self) {
+        for (exp, coeff) in other.raw_iter() {
+            self.add_term(exp.clone(), coeff.clone());
+        }
     }
 }
 
