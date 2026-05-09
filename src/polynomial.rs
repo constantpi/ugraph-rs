@@ -200,6 +200,11 @@ impl Polynomial {
         }
         Some(constant)
     }
+
+    pub fn is_fully_constant(&self) -> bool {
+        self.raw_iter()
+            .all(|(exp, _)| exp.0.iter().all(|&e| e == 0))
+    }
 }
 
 // PolynomialにAdd トレイトを実装
