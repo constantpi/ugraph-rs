@@ -104,8 +104,8 @@ pub fn project_polynomial(polys: &[Polynomial]) -> Vec<Polynomial> {
 
     // proj1の計算
     for coeffs in coeff_lists.iter() {
-        for coeff in differentiate_coefficients(&coeffs) {
-            projected.push(coeff);
+        for coeff in coeffs {
+            projected.push(coeff.clone());
         }
     }
 
