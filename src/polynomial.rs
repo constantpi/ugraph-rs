@@ -258,6 +258,16 @@ impl std::ops::AddAssign for Polynomial {
     }
 }
 
+impl num_traits::Zero for Polynomial {
+    fn zero() -> Self {
+        Polynomial::zero()
+    }
+
+    fn is_zero(&self) -> bool {
+        self.is_zero()
+    }
+}
+
 impl std::fmt::Display for Exponent {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for (variables, exponent) in self.0.iter().enumerate() {
