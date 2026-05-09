@@ -1,6 +1,6 @@
 use color_eyre::Result;
 use itertools::Itertools;
-use num_traits::{One, Zero};
+use num_traits::Zero;
 use std::collections::HashSet;
 use std::num::NonZeroUsize;
 use std::ops::{Add, Mul, Neg};
@@ -59,5 +59,52 @@ where
             det = det + product;
         }
         det
+    }
+}
+
+/// permの偶奇を判定する関数
+fn is_odd_permutation(perm: &[usize]) -> bool {
+    let mut visited = vec![false; perm.len()];
+    let mut odd = false;
+    for i in 0..perm.len() {
+        if !visited[i] {
+            let mut cycle_length = 0;
+            let mut j = i;
+            while !visited[j] {
+                visited[j] = true;
+                j = perm[j];
+                cycle_length += 1;
+            }
+            if cycle_length % 2 == 0 {
+                odd = !odd;
+            }
+        }
+    }
+    odd
+}
+
+pub fn generate_neg_list(n: usize) -> HashSet<Vec<usize>> {
+    (0..n)
+        .permutations(n)
+        .filter(|perm| is_odd_permutation(perm))
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_determinant() -> Result<()> {
+        let mat_vec = vec![vec![8, 5, -3], vec![0, 7, 3], vec![-2, -1, 1]];
+        let mut m = Matrix::zero(3)?;
+        for i in 0..3 {
+            for j in 0..3 {
+                m.set(i, j, mat_vec[i][j]);
+            }
+        }
+        let neg_list = generate_neg_list(3);
+        assert_eq!(m.determinant(&neg_list), 8);
+        Ok(())
     }
 }
