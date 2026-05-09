@@ -1,8 +1,10 @@
+mod cad;
 mod coordinate;
 mod graph;
 mod groebner;
 mod polynomial;
 
+use crate::cad::project_polynomial;
 use crate::coordinate::graph_to_polynomials;
 use crate::graph::{generate_graph, simplify_graph};
 
@@ -10,6 +12,47 @@ use color_eyre::Result;
 
 fn main() -> Result<()> {
     println!("Hello, world!");
+
+    let mut polynomial = polynomial::Polynomial::zero();
+    polynomial.add_term(
+        polynomial::Exponent::new(vec![2, 0, 0]),
+        num::BigRational::from_integer((1).into()),
+    ); // x^2
+    polynomial.add_term(
+        polynomial::Exponent::new(vec![0, 2, 0]),
+        num::BigRational::from_integer((1).into()),
+    ); // y^2
+    polynomial.add_term(
+        polynomial::Exponent::new(vec![0, 0, 2]),
+        num::BigRational::from_integer((1).into()),
+    ); // z^2
+    polynomial.add_term(
+        polynomial::Exponent::new(vec![1, 0, 0]),
+        num::BigRational::from_integer((-4).into()),
+    ); // -4x
+    polynomial.add_term(
+        polynomial::Exponent::new(vec![0, 1, 0]),
+        num::BigRational::from_integer((-4).into()),
+    ); // -4y
+    polynomial.add_term(
+        polynomial::Exponent::new(vec![0, 0, 1]),
+        num::BigRational::from_integer((-4).into()),
+    ); // -4z
+    polynomial.add_term(
+        polynomial::Exponent::new(vec![0, 0, 0]),
+        num::BigRational::from_integer((11).into()),
+    ); // +11
+    println!("Original polynomial: {}", polynomial);
+    println!("######################################################");
+    let projected = project_polynomial(&[polynomial]);
+    for (i, poly) in projected.iter().enumerate() {
+        println!("Projected polynomial {}: {}", i + 1, poly);
+    }
+    println!("######################################################");
+    let projected2 = project_polynomial(&projected);
+    for (i, poly) in projected2.iter().enumerate() {
+        println!("Projected polynomial {}: {}", i + 1, poly);
+    }
 
     let graph = generate_graph(4, &[(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)])?;
     for graph in simplify_graph(&graph)? {
