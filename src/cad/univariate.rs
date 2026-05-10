@@ -1,4 +1,4 @@
-use num::{BigRational, Zero};
+use num::{BigRational, One, Zero};
 use vec1::Vec1;
 
 fn clean(coefficients: &mut Vec1<BigRational>) {
@@ -31,6 +31,31 @@ impl UnivariatePolynomial {
     /// 末尾の0を削除する関数
     pub fn clean(&mut self) {
         clean(&mut self.0);
+    }
+
+    pub fn is_zero(&self) -> bool {
+        self.0.iter().all(|coeff| coeff.is_zero())
+    }
+
+    pub fn mul_constant(&self, constant: &BigRational) -> Self {
+        let (constant_coeff, non_constant_coeffs) = self.0.clone().split_off_first();
+        let new_constant = constant_coeff * constant;
+        let new_non_constant = non_constant_coeffs
+            .iter()
+            .map(|coeff| coeff * constant)
+            .collect::<Vec<_>>();
+        let mut new_coeffs = Vec1::new(new_constant);
+        new_coeffs.extend(new_non_constant);
+        UnivariatePolynomial(new_coeffs)
+    }
+
+    pub fn monic(&self) -> Self {
+        let last = self.0.last();
+        if last.is_zero() {
+            self.clone() // 0多項式はそのまま返す
+        } else {
+            self.mul_constant(&(BigRational::one() / last))
+        }
     }
 }
 
@@ -115,6 +140,59 @@ pub fn uni_poly_remainder(
     g: &UnivariatePolynomial,
 ) -> Option<UnivariatePolynomial> {
     remainder(&f.0, &g.0).map(UnivariatePolynomial)
+}
+
+pub fn uni_poly_division(
+    f: &UnivariatePolynomial,
+    g: &UnivariatePolynomial,
+) -> Option<UnivariatePolynomial> {
+    div(&f.0, &g.0).map(UnivariatePolynomial)
+}
+
+fn div(f: &Vec1<BigRational>, g: &Vec1<BigRational>) -> Option<Vec1<BigRational>> {
+    let f_degree = f.len_nonzero().get() - 1;
+    let g_degree = g.len_nonzero().get() - 1;
+    let lt_f = f.last();
+    let lt_g = g.last();
+    if lt_g.is_zero() {
+        None // 0で割ることはできないためNoneを返す
+    } else {
+        match f_degree.cmp(&g_degree) {
+            std::cmp::Ordering::Less => Some(Vec1::new(BigRational::zero())), // fの方が次数が小さい場合、商は常に0になる
+            std::cmp::Ordering::Equal => Some(Vec1::new(lt_f / lt_g)), // 同じ次数の場合、商は定数になる
+            std::cmp::Ordering::Greater => {
+                let res = lt_f / lt_g;
+                let mut f = f.clone();
+                f.pop().unwrap(); // 最高次の項を削除。fの次数はg以上なので必ず成功する
+                for i in 0..g_degree {
+                    let g_coeff = g[i].clone();
+                    f[f_degree - g_degree + i] -= res.clone() * g_coeff;
+                }
+                let mut ans = div(&f, g)?;
+                ans.push(res);
+                Some(ans)
+            }
+        }
+    }
+}
+
+pub fn uni_poly_div(
+    f: &UnivariatePolynomial,
+    g: &UnivariatePolynomial,
+) -> Option<UnivariatePolynomial> {
+    div(&f.0, &g.0).map(UnivariatePolynomial)
+}
+
+pub fn uni_poly_derivative(poly: &UnivariatePolynomial) -> UnivariatePolynomial {
+    let mut derivative_coeffs = vec![];
+    for (i, coeff) in poly.0.iter().enumerate().skip(1) {
+        derivative_coeffs.push(coeff * BigRational::from_integer((i as i64).into()));
+    }
+    if let Some(derivative_coeffs) = Vec1::try_from_vec(derivative_coeffs).ok() {
+        UnivariatePolynomial(derivative_coeffs)
+    } else {
+        UnivariatePolynomial(Vec1::new(BigRational::zero()))
+    }
 }
 
 #[cfg(test)]
