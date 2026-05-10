@@ -1,5 +1,5 @@
 mod matrix;
 mod proj;
+mod univariate;
 
-pub use matrix::{Matrix, generate_neg_list};
 pub use proj::project_polynomial;
