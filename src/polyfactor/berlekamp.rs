@@ -9,10 +9,14 @@ use super::{
 
 /// 因数分解のためのBerlekampのアルゴリズム
 pub fn berlekamp_factorization(coeffs: Vec1<BigInt>) -> Vec<PrimeModPoly> {
+    let lt = coeffs.last().clone();
     let poly = find_ok_prime(coeffs);
     let p = poly.get_prime();
     let degree = poly.degree();
     let zero = PrimeField::zero(p);
+    let lt: usize = (lt % p).try_into().unwrap();
+    let lt = PrimeField::new(lt, p);
+
     if degree <= 1 {
         vec![poly]
     } else {
@@ -57,7 +61,7 @@ pub fn berlekamp_factorization(coeffs: Vec1<BigInt>) -> Vec<PrimeModPoly> {
             })
             .filter(|p| p.degree() > 0)
             .collect::<Vec<_>>();
-        let mut ans = vec![];
+        let mut ans: Vec<PrimeModPoly> = vec![];
         let mut queue = vec![poly];
         let candidates = fixed_polys
             .iter()
@@ -66,6 +70,9 @@ pub fn berlekamp_factorization(coeffs: Vec1<BigInt>) -> Vec<PrimeModPoly> {
             .collect::<Vec<_>>();
         loop {
             let Some(f) = queue.pop() else {
+                if let Some(fist) = ans.first_mut() {
+                    *fist = fist.mul_const(&lt);
+                }
                 break ans;
             };
             let f_degree = f.degree();
@@ -104,6 +111,20 @@ mod tests {
             0.into(),
             1.into()
         ]; // x^7 + 2x^5 + x^4 + 2x^3 + x^2 + x + 1
+
+        let factors = berlekamp_factorization(coeffs);
+        assert_eq!(factors.len(), 3);
+
+        let coeffs = vec1![
+            2.into(),
+            2.into(),
+            2.into(),
+            4.into(),
+            2.into(),
+            4.into(),
+            0.into(),
+            2.into()
+        ]; // (x^7 + 2x^5 + x^4 + 2x^3 + x^2 + x + 1) * 2
 
         let factors = berlekamp_factorization(coeffs);
         assert_eq!(factors.len(), 3);

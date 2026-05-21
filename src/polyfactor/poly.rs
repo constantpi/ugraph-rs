@@ -68,6 +68,14 @@ impl PrimeModPoly {
         PrimeModPoly::new(new_terms, self.prime)
     }
 
+    pub fn mul_const(&self, constant: &PrimeField) -> Self {
+        let (rest, last) = self.terms.clone().split_off_last();
+        let new_last = last * *constant;
+        let new_rest = rest.iter().map(|c| *c * *constant).collect::<Vec<_>>();
+        let new_terms = Vec1::from_vec_push(new_rest, new_last);
+        PrimeModPoly::new(new_terms, self.prime)
+    }
+
     pub fn monic(&self) -> Self {
         let leading_coeff = self.lt();
         if leading_coeff.is_zero() {
