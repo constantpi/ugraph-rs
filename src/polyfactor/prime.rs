@@ -1,4 +1,5 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, Neg, Sub, SubAssign};
+use num::BigInt;
+use std::ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign};
 
 /// 素数上の体
 #[derive(Clone, Debug, PartialEq, Eq, Copy)]
@@ -40,6 +41,9 @@ impl PrimeField {
     }
     pub fn one(p: usize) -> Self {
         Self::new(1, p)
+    }
+    pub fn to_bigint(&self) -> BigInt {
+        self.n.into()
     }
 }
 
