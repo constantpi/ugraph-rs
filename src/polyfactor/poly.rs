@@ -60,6 +60,25 @@ impl PrimeModPoly {
     pub fn get_terms(&self) -> &Vec1<PrimeField> {
         &self.terms
     }
+
+    pub fn add_const(&self, constant: &PrimeField) -> Self {
+        let mut new_terms = self.terms.clone();
+        let first = new_terms.first_mut();
+        *first = *first + *constant;
+        PrimeModPoly::new(new_terms, self.prime)
+    }
+
+    pub fn monic(&self) -> Self {
+        let leading_coeff = self.lt();
+        if leading_coeff.is_zero() {
+            self.clone()
+        } else {
+            let (rest, last) = self.terms.clone().split_off_last();
+            let rest_inv = rest.iter().map(|c| *c / last).collect::<Vec<_>>();
+            let term_inv = Vec1::from_vec_push(rest_inv, PrimeField::one(self.prime));
+            PrimeModPoly::new(term_inv, self.prime)
+        }
+    }
 }
 
 pub fn mod_poly_derivative(poly: &PrimeModPoly) -> PrimeModPoly {
