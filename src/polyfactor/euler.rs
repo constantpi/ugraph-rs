@@ -18,7 +18,11 @@ where
     } else {
         let (x1, y1) = extended_gcd(b.clone(), a.clone() % b.clone());
         let x = y1.clone();
-        let y = x1 - (a / b) * y1;
+        let y = if y1.is_zero() {
+            x1.clone()
+        } else {
+            x1 - (a / b) * y1
+        };
         (x, y)
     }
 }

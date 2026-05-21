@@ -165,7 +165,13 @@ fn remainder(f: &Vec1<BigInt>, g: &Vec1<BigInt>) -> Option<Vec1<BigInt>> {
     let g_degree = g.len_nonzero().get() - 1;
     let lt_f = f.last();
     let lt_g = g.last();
-    if !lt_g.is_one() {
+    if g_degree == 0 {
+        if lt_f.is_zero() {
+            None
+        } else {
+            Some(Vec1::new(BigInt::zero())) // 定数で割るとあまりは常に0になる
+        }
+    } else if !lt_g.is_one() {
         None // gの最高次の係数が1でない場合は割り算できないためNoneを返す
     } else {
         if g_degree == 0 {
@@ -237,5 +243,24 @@ pub fn uni_poly_derivative(poly: &BigIntPoly) -> BigIntPoly {
         BigIntPoly(derivative_coeffs)
     } else {
         BigIntPoly(Vec1::new(BigInt::zero()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::extended_gcd;
+    use super::*;
+
+    #[test]
+    fn test_euler_gcd() {
+        let f = vec1![4.into(), 1.into(), 3.into()];
+        let g = vec1![2.into(), 1.into()];
+        let f = BigIntPoly(f);
+        let g = BigIntPoly(g);
+        let (x, y) = extended_gcd(f, g);
+        let x = x.0;
+        let y = y.0;
+        assert_eq!(x, vec1![1.into()]);
+        assert_eq!(y, vec1![5.into(), (-3).into()]);
     }
 }
