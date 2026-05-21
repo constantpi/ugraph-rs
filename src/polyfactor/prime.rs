@@ -150,6 +150,12 @@ impl Iterator for PrimeIter {
     }
 }
 
+impl std::fmt::Display for PrimeField {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.n)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
