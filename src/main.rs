@@ -2,6 +2,7 @@ mod cad;
 mod coordinate;
 mod graph;
 mod groebner;
+mod polyfactor;
 mod polynomial;
 
 use crate::cad::project_polynomial;
