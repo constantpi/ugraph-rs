@@ -46,6 +46,14 @@ impl PrimeModPoly {
     pub fn lt(&self) -> &PrimeField {
         self.terms.last()
     }
+
+    pub fn get_prime(&self) -> usize {
+        self.prime
+    }
+
+    pub fn get_terms(&self) -> &Vec1<PrimeField> {
+        &self.terms
+    }
 }
 
 pub fn mod_poly_derivative(poly: &PrimeModPoly) -> PrimeModPoly {
@@ -151,7 +159,7 @@ pub fn gcd(f: &PrimeModPoly, g: &PrimeModPoly) -> PrimeModPoly {
     }
 }
 
-pub fn is_ok_prime(coeffs: Vec1<BigInt>, p: usize) -> Option<PrimeModPoly> {
+fn is_ok_prime(coeffs: Vec1<BigInt>, p: usize) -> Option<PrimeModPoly> {
     let (rest, last) = coeffs.split_off_last();
     let last: usize = (last % p).try_into().unwrap();
     if last == 0 {
@@ -168,6 +176,16 @@ pub fn is_ok_prime(coeffs: Vec1<BigInt>, p: usize) -> Option<PrimeModPoly> {
         let der_poly = mod_poly_derivative(&poly);
         let g = gcd(&poly, &der_poly);
         if g.degree() == 0 { Some(poly) } else { None }
+    }
+}
+
+pub fn find_ok_prime(coeffs: Vec1<BigInt>) -> PrimeModPoly {
+    let mut prime_iter = PrimeIter::new();
+    loop {
+        let p = prime_iter.next().unwrap();
+        if let Some(poly) = is_ok_prime(coeffs.clone(), p) {
+            break poly;
+        }
     }
 }
 
