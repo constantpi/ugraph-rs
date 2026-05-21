@@ -57,6 +57,13 @@ impl UnivariatePolynomial {
             self.mul_constant(&(BigRational::one() / last))
         }
     }
+
+    pub fn substitute(&self, value: &BigRational) -> BigRational {
+        self.0
+            .iter()
+            .rev()
+            .fold(BigRational::zero(), |acc, coeff| acc * value + coeff)
+    }
 }
 
 impl std::ops::Add for UnivariatePolynomial {
