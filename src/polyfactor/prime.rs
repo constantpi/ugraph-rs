@@ -1,7 +1,7 @@
-use std::ops::{Add, AddAssign, Mul, Neg, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, Neg, Sub, SubAssign};
 
 /// 素数上の体
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Copy)]
 pub struct PrimeField {
     n: usize,
     p: usize,
@@ -17,6 +17,29 @@ impl PrimeField {
     }
     fn clear(&mut self) {
         self.n %= self.p;
+    }
+    pub fn get_prime(&self) -> usize {
+        self.p
+    }
+    pub fn is_zero(&self) -> bool {
+        self.n == 0
+    }
+    fn pow(&self, exp: usize) -> Self {
+        match exp {
+            0 => Self::new(1, self.p),
+            1 => *self,
+            _ => {
+                let half = self.pow(exp / 2);
+                let result = half * half;
+                if exp % 2 == 1 { result * *self } else { result }
+            }
+        }
+    }
+    pub fn zero(p: usize) -> Self {
+        Self::new(0, p)
+    }
+    pub fn one(p: usize) -> Self {
+        Self::new(1, p)
     }
 }
 
@@ -76,7 +99,18 @@ impl Mul for PrimeField {
     }
 }
 
-fn is_prime(n: usize) -> bool {
+impl Div for PrimeField {
+    type Output = Self;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        if self.p != rhs.p {
+            panic!("Cannot divide elements from different fields");
+        }
+        self * rhs.pow(self.p - 2)
+    }
+}
+
+pub fn is_prime(n: usize) -> bool {
     if n <= 1 {
         false
     } else {
