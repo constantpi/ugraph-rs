@@ -87,6 +87,22 @@ impl PrimeModPoly {
             PrimeModPoly::new(term_inv, self.prime)
         }
     }
+
+    pub fn one(prime: usize) -> Self {
+        PrimeModPoly::new(Vec1::new(PrimeField::one(prime)), prime)
+    }
+
+    pub fn zero(prime: usize) -> Self {
+        PrimeModPoly::new(Vec1::new(PrimeField::zero(prime)), prime)
+    }
+
+    pub fn to_constant(&self) -> Option<PrimeField> {
+        if self.degree() == 0 {
+            Some(self.terms.first().clone())
+        } else {
+            None
+        }
+    }
 }
 
 pub fn mod_poly_derivative(poly: &PrimeModPoly) -> PrimeModPoly {
@@ -222,6 +238,88 @@ pub fn find_ok_prime(coeffs: Vec1<BigInt>) -> PrimeModPoly {
     }
 }
 
+impl std::ops::Add for PrimeModPoly {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        if self.prime != rhs.prime {
+            panic!("Cannot add polynomials over different fields");
+        }
+        let (constant, non_constant) = self.terms.split_off_first();
+        let (rhs_constant, rhs_non_constant) = rhs.terms.split_off_first();
+        let mut sum = Vec1::new(constant + rhs_constant);
+        let max_len = usize::max(non_constant.len(), rhs_non_constant.len());
+        for i in 0..max_len {
+            let coeff1 = non_constant
+                .get(i)
+                .cloned()
+                .unwrap_or(PrimeField::zero(self.prime));
+            let coeff2 = rhs_non_constant
+                .get(i)
+                .cloned()
+                .unwrap_or(PrimeField::zero(self.prime));
+            sum.push(coeff1 + coeff2);
+        }
+        PrimeModPoly::new(sum, self.prime)
+    }
+}
+
+impl std::ops::Neg for PrimeModPoly {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        let (constant, non_constant) = self.terms.split_off_first();
+        let mut neg_coeffs = Vec1::new(-constant);
+        for coeff in non_constant {
+            neg_coeffs.push(-coeff);
+        }
+        PrimeModPoly::new(neg_coeffs, self.prime)
+    }
+}
+
+impl std::ops::Sub for PrimeModPoly {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        self + (-rhs)
+    }
+}
+
+impl std::ops::Mul for PrimeModPoly {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        if self.prime != rhs.prime {
+            panic!("Cannot multiply polynomials over different fields");
+        }
+        let p = self.prime;
+        let mut new_coeffs = Vec1::new(PrimeField::zero(p));
+        new_coeffs.extend(vec![PrimeField::zero(p); self.degree() + rhs.degree()]);
+        for (i, coeff1) in self.terms.iter().enumerate() {
+            for (j, coeff2) in rhs.terms.iter().enumerate() {
+                new_coeffs[i + j] += *coeff1 * *coeff2;
+            }
+        }
+        PrimeModPoly::new(new_coeffs, p)
+    }
+}
+
+impl std::ops::Div for PrimeModPoly {
+    type Output = Self;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        mod_poly_division(&self, &rhs).expect("Division by zero polynomial")
+    }
+}
+
+impl std::ops::Rem for PrimeModPoly {
+    type Output = Self;
+
+    fn rem(self, rhs: Self) -> Self::Output {
+        mod_poly_remainder(&self, &rhs).expect("Division by zero polynomial")
+    }
+}
+
 impl std::fmt::Display for PrimeModPoly {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let degree = self.degree();
@@ -254,6 +352,7 @@ impl std::fmt::Display for PrimeModPoly {
 mod tests {
     use vec1::vec1;
 
+    use super::super::extended_gcd;
     use super::*;
 
     #[test]
@@ -268,5 +367,19 @@ mod tests {
 
         let result = is_ok_prime(coeffs, 5);
         assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_euler_gcd() {
+        let f = vec1![
+            PrimeField::new(4, 5),
+            PrimeField::new(1, 5),
+            PrimeField::new(3, 5)
+        ];
+        let g = vec1![PrimeField::new(2, 5), PrimeField::new(1, 5)];
+        let f = PrimeModPoly::new(f, 5);
+        let g = PrimeModPoly::new(g, 5);
+        let (x, y) = extended_gcd(f.clone(), g.clone());
+        assert_eq!(f * x + g * y, PrimeModPoly::one(5));
     }
 }

@@ -1,42 +1,23 @@
-use num_traits::{One, Zero};
+use vec1::Vec1;
 
-/// a, bが与えられたときにax+by=gcd(a, b)hを満たすx, yを求める関数
+use super::{PrimeField, PrimeModPoly};
+/// a, bが与えられたときにax+by=1を満たすx, yを求める関数
 /// 足し算、引き算、掛け算、割り算が定義された環に対して定義できる
-pub fn extended_gcd<T>(a: T, b: T) -> (T, T)
-where
-    T: Clone
-        + std::ops::Add<Output = T>
-        + std::ops::Sub<Output = T>
-        + std::ops::Mul<Output = T>
-        + std::ops::Div<Output = T>
-        + std::ops::Rem<Output = T>
-        + One
-        + Zero,
-{
+pub fn extended_gcd(a: PrimeModPoly, b: PrimeModPoly) -> (PrimeModPoly, PrimeModPoly) {
+    let prime = a.get_prime();
     if b.is_zero() {
-        (T::one(), T::zero())
+        let coeff = a
+            .to_constant()
+            .unwrap_or_else(|| panic!("a is not a constant polynomial: {}", a));
+        let inv = PrimeField::new(1, prime) / coeff;
+        (
+            PrimeModPoly::new(Vec1::new(inv), prime),
+            PrimeModPoly::zero(prime),
+        )
     } else {
         let (x1, y1) = extended_gcd(b.clone(), a.clone() % b.clone());
         let x = y1.clone();
-        let y = if y1.is_zero() {
-            x1.clone()
-        } else {
-            x1 - (a / b) * y1
-        };
+        let y = x1 - (a / b) * y1;
         (x, y)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_extended_gcd() {
-        let a = 21;
-        let b = 30;
-        let (x, y) = extended_gcd(a, b);
-        println!("{} * {} + {} * {} = {}", a, x, b, y, a * x + b * y);
-        assert_eq!(a * x + b * y, 3);
     }
 }
