@@ -1,3 +1,4 @@
+use color_eyre::eyre::Ok;
 use num::{BigInt, Zero};
 use vec1::Vec1;
 
@@ -28,6 +29,11 @@ impl PrimeModPoly {
                 panic!("All terms must have the same prime");
             }
         }
+        let terms = {
+            let mut t = terms;
+            clean(&mut t);
+            t
+        };
         Self { terms, prime }
     }
 
@@ -186,6 +192,34 @@ pub fn find_ok_prime(coeffs: Vec1<BigInt>) -> PrimeModPoly {
         if let Some(poly) = is_ok_prime(coeffs.clone(), p) {
             break poly;
         }
+    }
+}
+
+impl std::fmt::Display for PrimeModPoly {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let degree = self.degree();
+        for (i, coeff) in self.terms.iter().enumerate().rev() {
+            let exp = if i == 0 {
+                String::new()
+            } else if i == 1 {
+                "x".to_string()
+            } else {
+                format!("x^{}", i)
+            };
+            let coeff = if coeff.is_zero() {
+                continue;
+            } else if coeff == &PrimeField::one(self.prime) && i != 0 {
+                String::new()
+            } else {
+                format!("{}", coeff)
+            };
+            if i == degree {
+                write!(f, "{}{}", coeff, exp)?;
+            } else {
+                write!(f, " + {}{} ", coeff, exp)?;
+            }
+        }
+        write!(f, " (mod {})", self.prime)
     }
 }
 
