@@ -34,14 +34,8 @@ impl Graph {
         if u == v {
             return Err(color_eyre::eyre::eyre!("自己ループは許可されていません"));
         }
-        self.adjacency
-            .entry(u)
-            .or_default()
-            .insert(v);
-        self.adjacency
-            .entry(v)
-            .or_default()
-            .insert(u);
+        self.adjacency.entry(u).or_default().insert(v);
+        self.adjacency.entry(v).or_default().insert(u);
         Ok(())
     }
 
