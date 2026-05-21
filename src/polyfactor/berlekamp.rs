@@ -1,7 +1,7 @@
 use num::BigInt;
 use vec1::Vec1;
 
-use super::{PrimeField, PrimeModPoly, find_ok_prime, mod_poly_remainder};
+use super::{PrimeField, PrimeModPoly, find_ok_prime, matrix_kernel, mod_poly_remainder};
 
 /// 因数分解のためのBerlekampのアルゴリズム
 pub fn berlekamp_factorization(coeffs: Vec1<BigInt>) -> Vec<PrimeModPoly> {
@@ -43,11 +43,19 @@ pub fn berlekamp_factorization(coeffs: Vec1<BigInt>) -> Vec<PrimeModPoly> {
             })
             .collect::<Vec<_>>();
 
-        for row in matrix.iter() {
-            for coeff in row.iter() {
-                print!("{} ", coeff);
-            }
-            println!();
+        let kernel_vectors = matrix_kernel(&matrix);
+        // 不動点多項式
+        let fixed_polys = kernel_vectors
+            .into_iter()
+            .map(|vec| {
+                let coeffs = Vec1::try_from_vec(vec).unwrap();
+                PrimeModPoly::new(coeffs, p)
+            })
+            .filter(|p| p.degree() > 0)
+            .collect::<Vec<_>>();
+        for fixed_poly in fixed_polys {
+            //
+            println!("Trying to factor with fixed polynomial: {}", fixed_poly);
         }
         todo!()
     }
