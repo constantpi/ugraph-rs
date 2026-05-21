@@ -1,7 +1,11 @@
+use itertools::Itertools;
 use num::BigInt;
 use vec1::Vec1;
 
-use super::{PrimeField, PrimeModPoly, find_ok_prime, matrix_kernel, mod_poly_remainder};
+use super::{
+    PrimeField, PrimeModPoly, find_ok_prime, gcd, matrix_kernel, mod_poly_division,
+    mod_poly_remainder,
+};
 
 /// 因数分解のためのBerlekampのアルゴリズム
 pub fn berlekamp_factorization(coeffs: Vec1<BigInt>) -> Vec<PrimeModPoly> {
@@ -53,11 +57,33 @@ pub fn berlekamp_factorization(coeffs: Vec1<BigInt>) -> Vec<PrimeModPoly> {
             })
             .filter(|p| p.degree() > 0)
             .collect::<Vec<_>>();
-        for fixed_poly in fixed_polys {
-            //
-            println!("Trying to factor with fixed polynomial: {}", fixed_poly);
+        let mut ans = vec![];
+        let mut queue = vec![poly];
+        let candidates = fixed_polys
+            .iter()
+            .cartesian_product((0..p).map(|c| PrimeField::new(c, p)))
+            .map(|(f, c)| f.add_const(&c))
+            .collect::<Vec<_>>();
+        loop {
+            let Some(f) = queue.pop() else {
+                break ans;
+            };
+            let f_degree = f.degree();
+            if let Some(d) = candidates.iter().find_map(|g| {
+                let d = gcd(&f, g);
+                let d_degree = d.degree();
+                if d_degree > 0 && d_degree < f_degree {
+                    Some(d)
+                } else {
+                    None
+                }
+            }) {
+                queue.push(mod_poly_division(&f, &d).unwrap());
+                queue.push(d);
+            } else {
+                ans.push(f.monic());
+            }
         }
-        todo!()
     }
 }
 
@@ -78,6 +104,8 @@ mod tests {
             0.into(),
             1.into()
         ]; // x^7 + 2x^5 + x^4 + 2x^3 + x^2 + x + 1
+
         let factors = berlekamp_factorization(coeffs);
+        assert_eq!(factors.len(), 3);
     }
 }

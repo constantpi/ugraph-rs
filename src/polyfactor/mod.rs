@@ -4,5 +4,5 @@ mod poly;
 mod prime;
 
 use matrix::matrix_kernel;
-use poly::{PrimeModPoly, find_ok_prime, mod_poly_remainder};
+use poly::{PrimeModPoly, find_ok_prime, gcd, mod_poly_division, mod_poly_remainder};
 use prime::{PrimeField, PrimeIter, is_prime};
