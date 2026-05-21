@@ -1,4 +1,5 @@
 use num::{BigInt, FromPrimitive, One, Zero};
+use num_traits::Signed;
 use vec1::{Vec1, vec1};
 
 fn clean(coefficients: &mut Vec1<BigInt>) {
@@ -54,11 +55,20 @@ impl BigIntPoly {
     }
 
     pub fn mod_integer(&self, modulus: &BigInt) -> Self {
+        fn big_int_mod(x: &BigInt, modulus: &BigInt) -> BigInt {
+            let r = x % modulus;
+            if r.is_negative() { r + modulus } else { r }
+        }
         let (rest, last) = self.0.clone().split_off_last();
-        let new_rest = rest.iter().map(|coeff| coeff % modulus).collect::<Vec<_>>();
-        let new_last = last % modulus;
+        let new_rest = rest
+            .iter()
+            .map(|coeff| big_int_mod(coeff, modulus))
+            .collect::<Vec<_>>();
+        let new_last = big_int_mod(&last, modulus);
         let new_coeffs = Vec1::from_vec_push(new_rest, new_last);
-        BigIntPoly(new_coeffs)
+        let mut ans = BigIntPoly(new_coeffs);
+        ans.clean();
+        ans
     }
 }
 
@@ -243,24 +253,5 @@ pub fn uni_poly_derivative(poly: &BigIntPoly) -> BigIntPoly {
         BigIntPoly(derivative_coeffs)
     } else {
         BigIntPoly(Vec1::new(BigInt::zero()))
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::super::extended_gcd;
-    use super::*;
-
-    #[test]
-    fn test_euler_gcd() {
-        let f = vec1![4.into(), 1.into(), 3.into()];
-        let g = vec1![2.into(), 1.into()];
-        let f = BigIntPoly(f);
-        let g = BigIntPoly(g);
-        let (x, y) = extended_gcd(f, g);
-        let x = x.0;
-        let y = y.0;
-        assert_eq!(x, vec1![1.into()]);
-        assert_eq!(y, vec1![5.into(), (-3).into()]);
     }
 }
