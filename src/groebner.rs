@@ -179,9 +179,6 @@ mod tests {
             p
         };
         let basis = groebner_basis(&[f1, f2]);
-        for (i, poly) in basis.iter().enumerate() {
-            println!("g{}: {}", i + 1, poly);
-        }
 
         assert_eq!(basis.len(), 2);
     }
