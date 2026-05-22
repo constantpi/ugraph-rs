@@ -8,7 +8,7 @@ use super::{
 };
 
 /// 因数分解のためのBerlekampのアルゴリズム
-pub fn berlekamp_factorization(coeffs: Vec1<BigInt>) -> Vec<PrimeModPoly> {
+pub fn berlekamp_factorization(coeffs: Vec1<BigInt>) -> Vec1<PrimeModPoly> {
     let lt = coeffs.last().clone();
     let poly = find_ok_prime(coeffs);
     let p = poly.get_prime();
@@ -18,7 +18,7 @@ pub fn berlekamp_factorization(coeffs: Vec1<BigInt>) -> Vec<PrimeModPoly> {
     let lt = PrimeField::new(lt, p);
 
     if degree <= 1 {
-        vec![poly]
+        Vec1::new(poly)
     } else {
         let berlekamp_matrix = (0..degree)
             .map(|i| {
@@ -73,7 +73,7 @@ pub fn berlekamp_factorization(coeffs: Vec1<BigInt>) -> Vec<PrimeModPoly> {
                 if let Some(fist) = ans.first_mut() {
                     *fist = fist.mul_const(&lt);
                 }
-                break ans;
+                break Vec1::try_from_vec(ans).unwrap();
             };
             let f_degree = f.degree();
             if let Some(d) = candidates.iter().find_map(|g| {
