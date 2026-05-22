@@ -1,4 +1,4 @@
-use num::{BigInt, FromPrimitive, One, Zero};
+use num::{BigInt, One, Zero};
 use num_traits::Signed;
 use vec1::Vec1;
 
