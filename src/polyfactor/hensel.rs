@@ -16,6 +16,25 @@ fn primepoly_to_bigintpoly(poly: &PrimeModPoly) -> BigIntPoly {
     BigIntPoly::new(coeffs)
 }
 
+/// リフティングする回数を計算する関数
+fn calculate_lifting_times(f: &BigIntPoly, p: usize) -> usize {
+    // まず係数の二乗和を計算する
+    let square_sum = f.iter().map(|coeff| coeff * coeff).sum::<BigInt>();
+    let len = f.iter().count();
+    // sqrt(square_sum) * 2^len < p^(2^k) を満たす最小のkを求める
+    // square_sum * (2^len)^2を計算する
+    let threshold = square_sum * BigInt::from(2).pow(2 * len as u32);
+    let mut k = 0;
+    let mut power = BigInt::from(p);
+    loop {
+        if power.pow(2) > threshold {
+            break k;
+        }
+        k += 1;
+        power = power.pow(2);
+    }
+}
+
 /// Henselの補題を用いて、f ≡ g * h (mod p) かつ gcd(g, h) = 1 を満たすときに、f ≡ G * H (mod p^k) かつ G ≡ g (mod p) かつ H ≡ h (mod p) を満たすG, Hを求める関数。
 /// ただしhはmonicで、fの最高次の係数はgやhのprimeで割り切れないとする
 fn lifting(
@@ -23,9 +42,10 @@ fn lifting(
     g: &PrimeModPoly,
     h: &PrimeModPoly,
     k: usize,
+    p: usize,
 ) -> (BigIntPoly, BigIntPoly) {
     let mut cnt = 0;
-    let mut m = BigInt::from(g.get_terms().last().get_prime());
+    let mut m = BigInt::from(p);
     let (s, t) = extended_gcd(g.clone(), h.clone());
     let mut s = primepoly_to_bigintpoly(&s);
     let mut t = primepoly_to_bigintpoly(&t);
@@ -58,7 +78,7 @@ fn lifting(
     }
 }
 
-fn lifting_vector(f: &BigIntPoly, g_vec: &Vec1<PrimeModPoly>) -> Vec1<BigIntPoly> {
+fn lifting_vector(f: &BigIntPoly, g_vec: &Vec1<PrimeModPoly>, k: usize) -> Vec1<BigIntPoly> {
     let p = g_vec.first().get_terms().last().get_prime();
     let len = g_vec.len_nonzero().get();
     if len == 1 {
@@ -73,14 +93,16 @@ fn lifting_vector(f: &BigIntPoly, g_vec: &Vec1<PrimeModPoly>) -> Vec1<BigIntPoly
         let h = second_half
             .iter()
             .fold(PrimeModPoly::one(p), |acc, g| acc * g.clone());
-        let (g_lifting, h_lifting) = lifting(f, &g, &h, 2);
+        let (g_lifting, h_lifting) = lifting(f, &g, &h, k, p);
         let mut g_vec_lifting = lifting_vector(
             &g_lifting,
             &Vec1::try_from_vec(first_half.to_vec()).unwrap(),
+            k,
         );
         let h_vec_lifting = lifting_vector(
             &h_lifting,
             &Vec1::try_from_vec(second_half.to_vec()).unwrap(),
+            k,
         );
         g_vec_lifting.extend(h_vec_lifting);
         g_vec_lifting
@@ -105,7 +127,7 @@ mod tests {
         let f = BigIntPoly::new(f);
         let g = PrimeModPoly::new(g, 5);
         let h = PrimeModPoly::new(h, 5);
-        let (g_lifting, h_lifting) = lifting(&f, &g, &h, 2);
+        let (g_lifting, h_lifting) = lifting(&f, &g, &h, 2, 5);
         let g_ans = BigIntPoly::new(vec1![209.into(), 301.into(), 3.into()]);
         let h_ans = BigIntPoly::new(vec1![317.into(), 1.into()]);
         assert_eq!(g_lifting, g_ans);
@@ -121,7 +143,9 @@ mod tests {
             PrimeModPoly::new(vec1![PrimeField::new(3, 7), PrimeField::new(1, 7)], 7),
             PrimeModPoly::new(vec1![PrimeField::new(4, 7), PrimeField::new(1, 7)], 7),
         ];
-        let g_vec_lifting = lifting_vector(&f, &g_vec);
+        let k = calculate_lifting_times(&f, 7);
+        assert_eq!(k, 2);
+        let g_vec_lifting = lifting_vector(&f, &g_vec, 2);
         // g_vec_liftingの中身をすべてかけ合わせる
         let product_lifting = g_vec_lifting
             .iter()
