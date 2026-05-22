@@ -42,7 +42,7 @@ impl PrimeField {
     pub fn one(p: usize) -> Self {
         Self::new(1, p)
     }
-    pub fn to_bigint(&self) -> BigInt {
+    pub fn to_bigint(self) -> BigInt {
         self.n.into()
     }
 }

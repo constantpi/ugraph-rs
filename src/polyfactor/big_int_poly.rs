@@ -42,18 +42,6 @@ impl BigIntPoly {
         self.0.len_nonzero().get() == 1 && self.0.first().is_one()
     }
 
-    pub fn mul_constant(&self, constant: &BigInt) -> Self {
-        let (constant_coeff, non_constant_coeffs) = self.0.clone().split_off_first();
-        let new_constant = constant_coeff * constant;
-        let new_non_constant = non_constant_coeffs
-            .iter()
-            .map(|coeff| coeff * constant)
-            .collect::<Vec<_>>();
-        let mut new_coeffs = Vec1::new(new_constant);
-        new_coeffs.extend(new_non_constant);
-        BigIntPoly(new_coeffs)
-    }
-
     pub fn mod_integer(&self, modulus: &BigInt) -> Self {
         fn big_int_mod(x: &BigInt, modulus: &BigInt) -> BigInt {
             let r = x % modulus;
@@ -208,10 +196,6 @@ pub fn uni_poly_remainder(f: &BigIntPoly, g: &BigIntPoly) -> Option<BigIntPoly> 
     remainder(&f.0, &g.0).map(BigIntPoly)
 }
 
-pub fn uni_poly_division(f: &BigIntPoly, g: &BigIntPoly) -> Option<BigIntPoly> {
-    div(&f.0, &g.0).map(BigIntPoly)
-}
-
 fn div(f: &Vec1<BigInt>, g: &Vec1<BigInt>) -> Option<Vec1<BigInt>> {
     let f_degree = f.len_nonzero().get() - 1;
     let g_degree = g.len_nonzero().get() - 1;
@@ -242,16 +226,4 @@ fn div(f: &Vec1<BigInt>, g: &Vec1<BigInt>) -> Option<Vec1<BigInt>> {
 
 pub fn uni_poly_div(f: &BigIntPoly, g: &BigIntPoly) -> Option<BigIntPoly> {
     div(&f.0, &g.0).map(BigIntPoly)
-}
-
-pub fn uni_poly_derivative(poly: &BigIntPoly) -> BigIntPoly {
-    let mut derivative_coeffs = vec![];
-    for (i, coeff) in poly.0.iter().enumerate().skip(1) {
-        derivative_coeffs.push(coeff * BigInt::from_usize(i).unwrap());
-    }
-    if let Ok(derivative_coeffs) = Vec1::try_from_vec(derivative_coeffs) {
-        BigIntPoly(derivative_coeffs)
-    } else {
-        BigIntPoly(Vec1::new(BigInt::zero()))
-    }
 }

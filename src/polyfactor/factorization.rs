@@ -22,7 +22,7 @@ pub fn rational_factorization(coeffs: Vec<BigRational>) -> Vec<BigIntPoly> {
 }
 
 /// BigRationalの係数からBigIntの係数に変換する関数
-fn rational_to_integer_coeffs(coeffs: &Vec<BigRational>) -> Vec<BigInt> {
+fn rational_to_integer_coeffs(coeffs: &[BigRational]) -> Vec<BigInt> {
     // まずは分母の最小公倍数を求める
     let lcm = coeffs.iter().fold(BigInt::from(1), |acc, coeff| {
         let denom = coeff.denom();
@@ -39,7 +39,7 @@ fn rational_to_integer_coeffs(coeffs: &Vec<BigRational>) -> Vec<BigInt> {
 }
 
 /// 多項式のモニック化
-fn monicize(coeffs: &Vec<BigInt>) -> Vec1<BigInt> {
+fn monicize(coeffs: &[BigInt]) -> Vec1<BigInt> {
     if let Some(leading) = coeffs.last() {
         // a^(n-1) * f(x/a) を計算する
         if leading.is_zero() {
