@@ -8,8 +8,10 @@ mod polynomial;
 use crate::cad::project_polynomial;
 use crate::coordinate::graph_to_polynomials;
 use crate::graph::{generate_graph, simplify_graph};
+use crate::polyfactor::rational_factorization;
 
 use color_eyre::Result;
+use num::{BigInt, BigRational};
 
 fn main() -> Result<()> {
     println!("Hello, world!");
@@ -141,6 +143,14 @@ fn main() -> Result<()> {
             println!("f{}: {}", i + 1, poly);
         }
     }
+    let coeffs = vec![
+        BigRational::new(BigInt::from(-3), BigInt::from(5)),
+        BigRational::new(BigInt::from(-6), BigInt::from(5)),
+        BigRational::new(BigInt::from(1), BigInt::from(10)),
+        BigRational::new(BigInt::from(1), BigInt::from(5)),
+    ];
+    let factors = rational_factorization(coeffs);
+
     Ok(())
 }
 
