@@ -108,6 +108,12 @@ fn lifting_vector(f: &BigIntPoly, g_vec: &Vec1<PrimeModPoly>, k: usize) -> Vec1<
         g_vec_lifting
     }
 }
+pub fn hensel_lifting(f: &BigIntPoly, g_vec: &Vec1<PrimeModPoly>) -> (Vec1<BigIntPoly>, BigInt) {
+    let p = g_vec.first().get_terms().last().get_prime();
+    let k = calculate_lifting_times(f, p);
+    let modulo = BigInt::from(p).pow(2u32.pow(k as u32));
+    (lifting_vector(f, g_vec, k), modulo)
+}
 
 #[cfg(test)]
 mod tests {
