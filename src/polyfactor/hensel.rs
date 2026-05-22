@@ -1,5 +1,5 @@
 use num::BigInt;
-use num_traits::{One, Zero};
+use num_traits::One;
 use vec1::Vec1;
 
 use super::{BigIntPoly, PrimeModPoly, extended_gcd};
@@ -58,10 +58,37 @@ fn lifting(
     }
 }
 
+fn lifting_vector(f: &BigIntPoly, g_vec: &Vec1<PrimeModPoly>) -> Vec1<BigIntPoly> {
+    let p = g_vec.first().get_terms().last().get_prime();
+    let len = g_vec.len_nonzero().get();
+    if len == 1 {
+        Vec1::new(f.clone())
+    } else {
+        // 長さが2以上のときは、g_vecを半分に分割して、それぞれをliftingしてから、さらにそれらをliftingする
+        let mid = len / 2;
+        let (first_half, second_half) = g_vec.split_at(mid);
+        let g = first_half
+            .iter()
+            .fold(PrimeModPoly::one(p), |acc, g| acc * g.clone());
+        let h = second_half
+            .iter()
+            .fold(PrimeModPoly::one(p), |acc, g| acc * g.clone());
+        let (g_lifting, h_lifting) = lifting(f, &g, &h, 2);
+        let mut g_vec_lifting = lifting_vector(
+            &g_lifting,
+            &Vec1::try_from_vec(first_half.to_vec()).unwrap(),
+        );
+        let h_vec_lifting = lifting_vector(
+            &h_lifting,
+            &Vec1::try_from_vec(second_half.to_vec()).unwrap(),
+        );
+        g_vec_lifting.extend(h_vec_lifting);
+        g_vec_lifting
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use std::os::unix::raw::gid_t;
-
     use super::super::PrimeField;
     use super::*;
     use vec1::vec1;
@@ -83,5 +110,24 @@ mod tests {
         let h_ans = BigIntPoly::new(vec1![317.into(), 1.into()]);
         assert_eq!(g_lifting, g_ans);
         assert_eq!(h_lifting, h_ans);
+    }
+
+    #[test]
+    fn test_lifting_vector() {
+        let f = vec1![1.into(), 3.into(), 3.into(), 2.into()];
+        let f = BigIntPoly::new(f);
+        let g_vec = vec1![
+            PrimeModPoly::new(vec1![PrimeField::new(3, 7), PrimeField::new(2, 7)], 7),
+            PrimeModPoly::new(vec1![PrimeField::new(3, 7), PrimeField::new(1, 7)], 7),
+            PrimeModPoly::new(vec1![PrimeField::new(4, 7), PrimeField::new(1, 7)], 7),
+        ];
+        let g_vec_lifting = lifting_vector(&f, &g_vec);
+        // g_vec_liftingの中身をすべてかけ合わせる
+        let product_lifting = g_vec_lifting
+            .iter()
+            .fold(BigIntPoly::one(), |acc, g| acc * g.clone());
+        let diff = f - product_lifting;
+        let diff_mod = diff.mod_integer(&BigInt::from(2401));
+        assert!(diff_mod.is_zero());
     }
 }
