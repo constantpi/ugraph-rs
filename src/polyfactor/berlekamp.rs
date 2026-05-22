@@ -3,7 +3,7 @@ use num::BigInt;
 use vec1::Vec1;
 
 use super::{
-    PrimeField, PrimeModPoly, find_ok_prime, gcd, matrix_kernel, mod_poly_division,
+    PrimeField, PrimeModPoly, find_ok_prime, gcd, matrix_kernel, mod_bigint, mod_poly_division,
     mod_poly_remainder,
 };
 
@@ -14,7 +14,7 @@ pub fn berlekamp_factorization(coeffs: Vec1<BigInt>) -> Vec1<PrimeModPoly> {
     let p = poly.get_prime();
     let degree = poly.degree();
     let zero = PrimeField::zero(p);
-    let lt: usize = (lt % p).try_into().unwrap();
+    let lt = mod_bigint(&lt, p);
     let lt = PrimeField::new(lt, p);
 
     if degree <= 1 {

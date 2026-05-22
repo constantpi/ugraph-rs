@@ -1,8 +1,19 @@
 use color_eyre::eyre::Ok;
-use num::{BigInt, Zero};
+use num::{BigInt, Signed};
 use vec1::Vec1;
 
 use super::{PrimeField, PrimeIter, is_prime};
+
+/// BigIntをmod pで割った余りを返す関数
+pub fn mod_bigint(n: &BigInt, p: usize) -> usize {
+    let n_mod = n % p;
+    if n_mod.is_negative() {
+        let p = BigInt::from(p);
+        (n_mod + p).try_into().unwrap()
+    } else {
+        n_mod.try_into().unwrap()
+    }
+}
 
 fn clean(coefficients: &mut Vec1<PrimeField>) {
     // popが成功すれば残りもVec1であるため続行する
@@ -210,7 +221,7 @@ pub fn gcd(f: &PrimeModPoly, g: &PrimeModPoly) -> PrimeModPoly {
 
 fn is_ok_prime(coeffs: Vec1<BigInt>, p: usize) -> Option<PrimeModPoly> {
     let (rest, last) = coeffs.split_off_last();
-    let last: usize = (last % p).try_into().unwrap();
+    let last = mod_bigint(&last, p);
     if last == 0 {
         // 最高次の項の係数がpで割り切れる場合はNG
         None
@@ -218,7 +229,7 @@ fn is_ok_prime(coeffs: Vec1<BigInt>, p: usize) -> Option<PrimeModPoly> {
         let last = PrimeField::new(last, p);
         let rest = rest
             .into_iter()
-            .map(|c| PrimeField::new((c % p).try_into().unwrap(), p))
+            .map(|c| PrimeField::new(mod_bigint(&c, p), p))
             .collect::<Vec<_>>();
         let mod_coeffs = Vec1::from_vec_push(rest, last);
         let poly = PrimeModPoly::new(mod_coeffs, p);
