@@ -4,3 +4,4 @@ mod sturm;
 mod univariate;
 
 pub use proj::project_polynomial;
+pub use univariate::UnivariatePolynomial;

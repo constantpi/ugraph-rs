@@ -1,6 +1,7 @@
 mod berlekamp;
 mod big_int_poly;
 mod euler;
+mod factor_combination;
 mod factorization;
 mod hensel;
 mod matrix;
@@ -10,6 +11,7 @@ mod prime;
 use berlekamp::berlekamp_factorization;
 use big_int_poly::BigIntPoly;
 use euler::extended_gcd;
+use factor_combination::reconstruct_factors;
 pub use factorization::rational_factorization;
 use hensel::hensel_lifting;
 use matrix::matrix_kernel;

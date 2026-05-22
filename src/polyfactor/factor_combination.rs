@@ -20,7 +20,7 @@ fn center_coefficients(f: &BigIntPoly, m: &BigInt) -> BigIntPoly {
     }
     let terms = f.get_terms().clone();
     let (rest, last) = terms.split_off_last();
-    let rest = rest.iter().map(|c| center(&c, m)).collect::<Vec<_>>();
+    let rest = rest.iter().map(|c| center(c, m)).collect::<Vec<_>>();
     let last = center(&last, m);
     let coeffs = Vec1::from_vec_push(rest, last);
     BigIntPoly::new(coeffs)
