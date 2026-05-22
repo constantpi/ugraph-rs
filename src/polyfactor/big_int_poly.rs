@@ -58,6 +58,10 @@ impl BigIntPoly {
         ans.clean();
         ans
     }
+
+    pub fn get_terms(&self) -> &Vec1<BigInt> {
+        &self.0
+    }
 }
 
 impl std::ops::Add for BigIntPoly {
