@@ -35,7 +35,6 @@ fn to_row_echelon_form(matrix: &mut Matrix) {
 pub fn matrix_kernel(matrix: &Matrix) -> Vec<Vec<PrimeField>> {
     let mut mat = matrix.clone();
     to_row_echelon_form(&mut mat);
-    let n = mat.len();
     let free_vars = mat
         .iter()
         .enumerate()

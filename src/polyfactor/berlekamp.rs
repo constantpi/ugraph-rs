@@ -42,9 +42,9 @@ pub fn berlekamp_factorization(coeffs: Vec1<BigInt>) -> Vec1<PrimeModPoly> {
                 (0..degree)
                     .map(|j| {
                         if i == j {
-                            berlekamp_matrix[j][i].clone() - PrimeField::one(p)
+                            berlekamp_matrix[j][i] - PrimeField::one(p)
                         } else {
-                            berlekamp_matrix[j][i].clone()
+                            berlekamp_matrix[j][i]
                         }
                     })
                     .collect::<Vec<_>>()

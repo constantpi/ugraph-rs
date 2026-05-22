@@ -123,7 +123,7 @@ pub fn is_prime(n: usize) -> bool {
             if i * i > n {
                 break true;
             }
-            if n % i == 0 {
+            if n.is_multiple_of(i) {
                 break false;
             }
             i += 1;

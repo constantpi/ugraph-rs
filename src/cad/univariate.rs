@@ -195,7 +195,7 @@ pub fn uni_poly_derivative(poly: &UnivariatePolynomial) -> UnivariatePolynomial 
     for (i, coeff) in poly.0.iter().enumerate().skip(1) {
         derivative_coeffs.push(coeff * BigRational::from_integer((i as i64).into()));
     }
-    if let Some(derivative_coeffs) = Vec1::try_from_vec(derivative_coeffs).ok() {
+    if let Ok(derivative_coeffs) = Vec1::try_from_vec(derivative_coeffs) {
         UnivariatePolynomial(derivative_coeffs)
     } else {
         UnivariatePolynomial(Vec1::new(BigRational::zero()))

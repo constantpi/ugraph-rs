@@ -1,4 +1,3 @@
-use color_eyre::eyre::Ok;
 use num::{BigInt, Signed};
 use vec1::Vec1;
 
@@ -75,7 +74,7 @@ impl PrimeModPoly {
     pub fn add_const(&self, constant: &PrimeField) -> Self {
         let mut new_terms = self.terms.clone();
         let first = new_terms.first_mut();
-        *first = *first + *constant;
+        *first += *constant;
         PrimeModPoly::new(new_terms, self.prime)
     }
 
@@ -109,7 +108,7 @@ impl PrimeModPoly {
 
     pub fn to_constant(&self) -> Option<PrimeField> {
         if self.degree() == 0 {
-            Some(self.terms.first().clone())
+            Some(*self.terms.first())
         } else {
             None
         }
@@ -122,10 +121,10 @@ pub fn mod_poly_derivative(poly: &PrimeModPoly) -> PrimeModPoly {
         .enumerate()
         .skip(1) // 定数項は微分すると0になるためスキップ
         .map(|(i, coeff)| {
-            *coeff * PrimeField::new(i as usize, poly.prime) // i*x^(i-1)の係数はi*coeffになる
+            *coeff * PrimeField::new(i, poly.prime) // i*x^(i-1)の係数はi*coeffになる
         })
         .collect::<Vec<_>>();
-    if let Some(coeffs) = Vec1::try_from_vec(new_terms).ok() {
+    if let Ok(coeffs) = Vec1::try_from_vec(new_terms) {
         PrimeModPoly::new(coeffs, poly.prime)
     } else {
         // 全ての項が0になった場合は0多項式を返す
@@ -181,8 +180,8 @@ fn div(f: &Vec1<PrimeField>, g: &Vec1<PrimeField>) -> Option<Vec1<PrimeField>> {
                 let mut f = f.clone();
                 f.pop().unwrap(); // 最高次の項を削除。fの次数はg以上なので必ず成功する
                 for i in 0..g_degree {
-                    let g_coeff = g[i].clone();
-                    f[f_degree - g_degree + i] -= res.clone() * g_coeff;
+                    let g_coeff = g[i];
+                    f[f_degree - g_degree + i] -= res * g_coeff;
                 }
                 let mut ans = div(&f, g)?;
                 ans.push(res);

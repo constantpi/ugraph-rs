@@ -149,7 +149,7 @@ fn main() -> Result<()> {
         BigRational::new(BigInt::from(1), BigInt::from(10)),
         BigRational::new(BigInt::from(1), BigInt::from(5)),
     ];
-    let factors = rational_factorization(coeffs);
+    let _factors = rational_factorization(coeffs);
 
     Ok(())
 }

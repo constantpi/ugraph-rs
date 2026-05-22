@@ -1,6 +1,6 @@
 use num::{BigInt, FromPrimitive, One, Zero};
 use num_traits::Signed;
-use vec1::{Vec1, vec1};
+use vec1::Vec1;
 
 fn clean(coefficients: &mut Vec1<BigInt>) {
     // popが成功すれば残りもVec1であるため続行する
@@ -249,7 +249,7 @@ pub fn uni_poly_derivative(poly: &BigIntPoly) -> BigIntPoly {
     for (i, coeff) in poly.0.iter().enumerate().skip(1) {
         derivative_coeffs.push(coeff * BigInt::from_usize(i).unwrap());
     }
-    if let Some(derivative_coeffs) = Vec1::try_from_vec(derivative_coeffs).ok() {
+    if let Ok(derivative_coeffs) = Vec1::try_from_vec(derivative_coeffs) {
         BigIntPoly(derivative_coeffs)
     } else {
         BigIntPoly(Vec1::new(BigInt::zero()))

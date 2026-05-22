@@ -12,7 +12,7 @@ pub fn rational_factorization(coeffs: Vec<BigRational>) -> Vec<BigIntPoly> {
     let poly = BigIntPoly::new(monic_coeffs.clone());
     // println!("Monic polynomial: {:?}", poly);
     let prime_factors = berlekamp_factorization(monic_coeffs);
-    let (lifted_factors, modulo) = hensel_lifting(&poly, &prime_factors);
+    let (_lifted_factors, _modulo) = hensel_lifting(&poly, &prime_factors);
     // println!("modulo: {}", modulo);
     // for factor in lifted_factors {
     //     println!("Factor: {:?}", factor);
@@ -30,7 +30,7 @@ fn rational_to_integer_coeffs(coeffs: &Vec<BigRational>) -> Vec<BigInt> {
     });
     // 各係数を最小公倍数で割って整数に変換
     coeffs
-        .into_iter()
+        .iter()
         .map(|coeff| {
             let numerator = coeff.numer();
             numerator * &lcm / coeff.denom()
