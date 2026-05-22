@@ -144,12 +144,16 @@ fn main() -> Result<()> {
         }
     }
     let coeffs = vec![
-        BigRational::new(BigInt::from(-3), BigInt::from(5)),
-        BigRational::new(BigInt::from(-6), BigInt::from(5)),
-        BigRational::new(BigInt::from(1), BigInt::from(10)),
-        BigRational::new(BigInt::from(1), BigInt::from(5)),
+        BigRational::new(BigInt::from(4), BigInt::from(1)),
+        BigRational::new(BigInt::from(0), BigInt::from(1)),
+        BigRational::new(BigInt::from(0), BigInt::from(1)),
+        BigRational::new(BigInt::from(0), BigInt::from(1)),
+        BigRational::new(BigInt::from(1), BigInt::from(1)),
     ];
-    let _factors = rational_factorization(coeffs);
+    let factors = rational_factorization(coeffs);
+    for (i, factor) in factors.iter().enumerate() {
+        println!("Factor {}: {:?}", i + 1, factor);
+    }
 
     Ok(())
 }
