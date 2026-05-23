@@ -160,13 +160,6 @@ pub fn uni_poly_remainder(
     remainder(&f.0, &g.0).map(UnivariatePolynomial)
 }
 
-pub fn uni_poly_division(
-    f: &UnivariatePolynomial,
-    g: &UnivariatePolynomial,
-) -> Option<UnivariatePolynomial> {
-    div(&f.0, &g.0).map(UnivariatePolynomial)
-}
-
 fn div(f: &Vec1<BigRational>, g: &Vec1<BigRational>) -> Option<Vec1<BigRational>> {
     let f_degree = f.len_nonzero().get() - 1;
     let g_degree = g.len_nonzero().get() - 1;
@@ -233,6 +226,37 @@ pub fn polynomial_to_univariate(poly: &Polynomial) -> Result<UnivariatePolynomia
     }
     Ok(UnivariatePolynomial(univariate_coeffs))
 }
+
+impl std::fmt::Display for UnivariatePolynomial {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let degree = self.degree();
+        for (i, coeff) in self.0.iter().enumerate().rev() {
+            let exp = if i == 0 {
+                String::new()
+            } else if i == 1 {
+                "x".to_string()
+            } else {
+                format!("x^{}", i)
+            };
+            let coeff = if coeff.is_zero() {
+                continue;
+            } else if coeff == &BigRational::one() && i != 0 {
+                String::new()
+            } else {
+                format!("{}", coeff)
+            };
+            if i == degree {
+                write!(f, "{}{}", coeff, exp)?;
+            } else if coeff.starts_with('-') {
+                write!(f, " - {}{} ", &coeff[1..], exp)?;
+            } else {
+                write!(f, " + {}{} ", coeff, exp)?;
+            }
+        }
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

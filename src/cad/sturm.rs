@@ -204,6 +204,16 @@ pub fn find_all_roots(poly: &UnivariatePolynomial) -> Vec<Root> {
     ans
 }
 
+impl std::fmt::Display for Root {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Root of {} in range [{}, {}]",
+            self.poly, self.lower_bound, self.upper_bound
+        )
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
