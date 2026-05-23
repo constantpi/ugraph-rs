@@ -211,6 +211,19 @@ impl Polynomial {
         self.raw_iter()
             .all(|(exp, _)| exp.0.iter().all(|&e| e == 0))
     }
+
+    /// 定数であればSome(constant)を返し、そうでなければNoneを返す
+    pub fn as_constant(&self) -> Option<BigRational> {
+        if self.is_fully_constant() {
+            if let Some(coeff) = self.raw_iter().next().map(|(_, coeff)| coeff.clone()) {
+                Some(coeff)
+            } else {
+                Some(BigRational::from_integer(0.into())) // 定数項がない場合は0とみなす
+            }
+        } else {
+            None
+        }
+    }
 }
 
 // PolynomialにAdd トレイトを実装

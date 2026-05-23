@@ -1,5 +1,4 @@
 use num::BigRational;
-use num_traits::Zero;
 
 use crate::cad::{UnivariatePolynomial, polynomial_to_univariate, psc_0};
 use crate::polynomial::{Exponent, Polynomial};
@@ -88,18 +87,7 @@ pub fn evaluate_polynomial_at_constants(
                 current_poly
                     .and_then(|p| substitute_first_variable(&p, value, current_num_vars - i - 1))
             })?;
-    if substituted_poly
-        .raw_iter()
-        .all(|(exp, _)| exp.as_slice().iter().all(|&e| e == 0))
-    {
-        if let Some((_, coeff)) = substituted_poly.raw_iter().next() {
-            Some(coeff.clone())
-        } else {
-            Some(BigRational::zero())
-        }
-    } else {
-        None // まだ変数が残っている場合はNoneを返す
-    }
+    substituted_poly.as_constant()
 }
 
 #[cfg(test)]
