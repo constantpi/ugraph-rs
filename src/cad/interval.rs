@@ -61,7 +61,7 @@ fn pow_range(base: &SignedRange, exp: u32) -> SignedRange {
         SignedRange::Interval(interval) => {
             let abs_lower = interval.abs_lower.pow(exp as i32);
             let abs_upper = interval.abs_upper.pow(exp as i32);
-            let is_positive = if exp % 2 == 0 {
+            let is_positive = if exp.is_multiple_of(2) {
                 true
             } else {
                 interval.is_positive
@@ -106,11 +106,7 @@ fn mul_ranges(range1: &SignedRange, range2: &SignedRange) -> SignedRange {
         (SignedRange::Interval(interval1), SignedRange::Interval(interval2)) => {
             let abs_lower = interval1.abs_lower.clone() * interval2.abs_lower.clone();
             let abs_upper = interval1.abs_upper.clone() * interval2.abs_upper.clone();
-            let is_positive = if interval1.is_positive == interval2.is_positive {
-                true
-            } else {
-                false
-            };
+            let is_positive = interval1.is_positive == interval2.is_positive;
             SignedRange::Interval(SignedInterval {
                 is_positive,
                 abs_lower,

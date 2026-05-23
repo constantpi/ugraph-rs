@@ -64,9 +64,8 @@ pub fn specialize_polynomial(
         values
             .iter()
             .enumerate()
-            .fold(Some(poly.clone()), |current_poly, (i, value)| {
-                current_poly
-                    .and_then(|p| substitute_first_variable(&p, value, current_num_vars - i))
+            .try_fold(poly.clone(), |current_poly, (i, value)| {
+                substitute_first_variable(&current_poly, value, current_num_vars - i)
             })?;
     polynomial_to_univariate(&substituted_poly).ok()
 }
@@ -83,9 +82,8 @@ pub fn evaluate_polynomial_at_constants(
         values
             .iter()
             .enumerate()
-            .fold(Some(poly.clone()), |current_poly, (i, value)| {
-                current_poly
-                    .and_then(|p| substitute_first_variable(&p, value, current_num_vars - i - 1))
+            .try_fold(poly.clone(), |current_poly, (i, value)| {
+                substitute_first_variable(&current_poly, value, current_num_vars - i - 1)
             })?;
     substituted_poly.as_constant()
 }

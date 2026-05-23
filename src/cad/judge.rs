@@ -1,10 +1,8 @@
 use color_eyre::Result;
-use num::BigRational;
 use num_traits::Zero;
 
 use crate::cad::{
-    Root, UnivariatePolynomial, evaluate_polynomial_at_constants, polynomial_to_univariate, psc_0,
-    specialize_polynomial,
+    Root, evaluate_polynomial_at_constants,
 };
 use crate::polynomial::Polynomial;
 

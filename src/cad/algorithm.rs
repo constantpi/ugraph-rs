@@ -1,7 +1,7 @@
 use color_eyre::Result;
 
 use super::{
-    Root, UnivariatePolynomial, calc_sample_points, find_unique_roots, is_possible_solution,
+    Root, calc_sample_points, find_unique_roots, is_possible_solution,
     lifting, polynomial_to_univariate, project_polynomial,
 };
 use crate::polynomial::Polynomial;
@@ -64,7 +64,7 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
         let mut acc = Vec::new();
         for sample in sample_points {
             print_sample_point(&sample);
-            if is_possible_solution(&polinomials, &sample)? {
+            if is_possible_solution(polinomials, &sample)? {
                 println!("Found possible solution");
                 acc.push(sample);
             } else {
