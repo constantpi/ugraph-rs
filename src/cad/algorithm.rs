@@ -1,6 +1,9 @@
 use color_eyre::Result;
 
-use super::{Root, find_all_roots, polynomial_to_univariate, project_polynomial, unique_roots};
+use super::{
+    Root, UnivariatePolynomial, calc_sample_points, find_unique_roots, lifting,
+    polynomial_to_univariate, project_polynomial,
+};
 use crate::polynomial::Polynomial;
 
 pub enum Solution {
@@ -28,15 +31,40 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
         .iter()
         .map(polynomial_to_univariate)
         .collect::<Result<Vec<_>>>()?;
-    let all_roots = unique_roots(
-        univariate_polynomials
-            .iter()
-            .flat_map(find_all_roots)
-            .collect::<Vec<_>>(),
-    );
-    for root in all_roots {
-        println!("Checking root: {}", root);
+    let all_roots = find_unique_roots(&univariate_polynomials);
+    for root in &all_roots {
+        println!("Found root: {}", root);
+    }
+    let mut sample_points = calc_sample_points(&all_roots)
+        .iter()
+        .map(|r| vec![r.clone()])
+        .collect::<Vec<_>>();
+    println!("Sample points length: {}", sample_points.len());
+    for sample in sample_points.iter() {
+        println!("Trying sample point: {}", sample[0]);
+    }
+    // historyを逆順にたどりながら、sample_pointsをliftingしていく
+    for polynomials in history.into_iter().rev() {
+        sample_points = lifting(&polynomials, &sample_points)?;
+        println!(
+            "After lifting, sample points length: {}",
+            sample_points.len()
+        );
+        for sample in &sample_points {
+            print_sample_point(sample);
+        }
     }
 
     todo!()
+}
+
+fn print_sample_point(sample: &[Root]) {
+    print!("Sample point: (");
+    for (i, root) in sample.iter().enumerate() {
+        if i > 0 {
+            print!(", ");
+        }
+        print!("{}", root);
+    }
+    println!(")");
 }
