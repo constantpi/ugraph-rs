@@ -333,7 +333,6 @@ mod tests {
             ),
         ];
         assert_eq!(roots, ans);
-        println!("Roots: {:?}", roots);
 
         // 解が存在しない場合も正しく動くか
         let poly = UnivariatePolynomial::new(vec1![
