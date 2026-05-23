@@ -76,6 +76,35 @@ impl Root {
             }
         }
     }
+
+    pub fn get_range(&self) -> &Range {
+        &self.range
+    }
+
+    pub fn get_poly(&self) -> &UnivariatePolynomial {
+        &self.poly
+    }
+
+    pub fn get_interval(&self) -> Option<(BigRational, BigRational)> {
+        match &self.range {
+            Range::Exact(_) => None,
+            Range::Interval(lower, upper) => Some((lower.clone(), upper.clone())),
+        }
+    }
+
+    pub fn get_lower_bound(&self) -> BigRational {
+        match &self.range {
+            Range::Exact(root) => root.clone(),
+            Range::Interval(lower, _) => lower.clone(),
+        }
+    }
+
+    pub fn get_upper_bound(&self) -> BigRational {
+        match &self.range {
+            Range::Exact(root) => root.clone(),
+            Range::Interval(_, upper) => upper.clone(),
+        }
+    }
 }
 
 /// オイラーの互除法
