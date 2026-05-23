@@ -281,12 +281,8 @@ pub fn find_unique_roots(polynomials: &[UnivariatePolynomial]) -> Vec<Root> {
 impl std::fmt::Display for Root {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.range {
-            Range::Exact(root) => write!(f, "Root of {} is exactly {}", self.poly, root),
-            Range::Interval(lower, upper) => write!(
-                f,
-                "Root of {} is in the interval [{}, {}]",
-                self.poly, lower, upper
-            ),
+            Range::Exact(root) => write!(f, "{root}"),
+            Range::Interval(lower, upper) => write!(f, "[{}, {}] ({})", lower, upper, self.poly),
         }
     }
 }
