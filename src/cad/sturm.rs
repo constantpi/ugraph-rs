@@ -223,7 +223,7 @@ fn range_of_roots(sequence: &Vec1<UnivariatePolynomial>) -> (BigRational, BigRat
     }
 }
 
-pub fn find_all_roots(poly: &UnivariatePolynomial) -> Vec<Root> {
+fn find_all_roots(poly: &UnivariatePolynomial) -> Vec<Root> {
     let square_free = square_free_part(poly);
     let factors = rational_factorization(&square_free);
     let mut ans = Vec::new();
@@ -258,7 +258,7 @@ pub fn find_all_roots(poly: &UnivariatePolynomial) -> Vec<Root> {
     ans
 }
 
-pub fn unique_roots(roots: Vec<Root>) -> Vec<Root> {
+fn unique_roots(roots: Vec<Root>) -> Vec<Root> {
     let mut unique: Vec<Root> = Vec::new();
     for root in roots {
         if !unique.iter().any(|r| r.is_same_root(&root)) {
@@ -266,6 +266,15 @@ pub fn unique_roots(roots: Vec<Root>) -> Vec<Root> {
         }
     }
     unique
+}
+
+/// 一変数の複数の多項式からUniqueなRootをすべて見つける関数
+pub fn find_unique_roots(polynomials: &[UnivariatePolynomial]) -> Vec<Root> {
+    let all_roots = polynomials
+        .iter()
+        .flat_map(find_all_roots)
+        .collect::<Vec<_>>();
+    unique_roots(all_roots)
 }
 
 impl std::fmt::Display for Root {
