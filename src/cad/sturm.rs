@@ -18,6 +18,11 @@ impl Root {
         upper_bound: BigRational,
         lower_bound: BigRational,
     ) -> Self {
+        let lt = poly.leading_coeff();
+        // monicである必要がある。
+        if !lt.is_one() {
+            panic!("Leading coefficient must be 1 or 0 for creating a Root");
+        }
         match poly.degree() {
             0 => panic!("The polynomial must have at least one root"),
             1 => {
