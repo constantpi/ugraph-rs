@@ -18,10 +18,32 @@ impl Root {
         upper_bound: BigRational,
         lower_bound: BigRational,
     ) -> Self {
-        Root {
-            poly,
-            upper_bound,
-            lower_bound,
+        match poly.degree() {
+            0 => panic!("The polynomial must have at least one root"),
+            1 => {
+                let coeffs = poly.iter().cloned().collect::<Vec<_>>();
+                let a = coeffs[1].clone();
+                let b = coeffs[0].clone();
+                if a.is_zero() {
+                    panic!("Leading coefficient cannot be zero for a linear polynomial");
+                }
+                let root = -b / a;
+                Root {
+                    poly,
+                    upper_bound: root.clone(),
+                    lower_bound: root,
+                }
+            }
+            _ => {
+                if upper_bound < lower_bound {
+                    panic!("Upper bound must be greater than or equal to lower bound");
+                }
+                Root {
+                    poly,
+                    upper_bound,
+                    lower_bound,
+                }
+            }
         }
     }
 }
@@ -229,6 +251,7 @@ mod tests {
             ),
         ];
         assert_eq!(roots, ans);
+        println!("Roots: {:?}", roots);
 
         // 解が存在しない場合も正しく動くか
         let poly = UnivariatePolynomial::new(vec1![
