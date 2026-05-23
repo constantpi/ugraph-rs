@@ -5,16 +5,18 @@ mod groebner;
 mod polyfactor;
 mod polynomial;
 
-use crate::cad::project_polynomial;
+use crate::cad::{UnivariatePolynomial, find_solution, project_polynomial};
 use crate::coordinate::graph_to_polynomials;
 use crate::graph::{generate_graph, simplify_graph};
 use crate::polyfactor::rational_factorization;
 
 use color_eyre::Result;
 use num::{BigInt, BigRational};
+use vec1::vec1;
 
 fn main() -> Result<()> {
     println!("Hello, world!");
+    color_eyre::install()?;
 
     let mut polynomial = polynomial::Polynomial::zero();
     polynomial.add_term(
@@ -143,17 +145,51 @@ fn main() -> Result<()> {
             println!("f{}: {}", i + 1, poly);
         }
     }
-    let coeffs = vec![
+    let coeffs = vec1![
         BigRational::new(BigInt::from(4), BigInt::from(1)),
         BigRational::new(BigInt::from(0), BigInt::from(1)),
         BigRational::new(BigInt::from(0), BigInt::from(1)),
         BigRational::new(BigInt::from(0), BigInt::from(1)),
         BigRational::new(BigInt::from(1), BigInt::from(1)),
     ];
-    let factors = rational_factorization(coeffs);
+    let poly = UnivariatePolynomial::new(coeffs);
+    let factors = rational_factorization(&poly);
     for (i, factor) in factors.iter().enumerate() {
         println!("Factor {}: {:?}", i + 1, factor);
     }
+
+    // x^2 + y^2 = 4, xy = 1を満たす点を求める
+    let f1 = {
+        let mut p = polynomial::Polynomial::zero();
+        p.add_term(
+            polynomial::Exponent::new(vec![2, 0]),
+            num::BigRational::from_integer(1.into()),
+        );
+        p.add_term(
+            polynomial::Exponent::new(vec![0, 2]),
+            num::BigRational::from_integer(1.into()),
+        );
+        p.add_term(
+            polynomial::Exponent::new(vec![0, 0]),
+            num::BigRational::from_integer((-4).into()),
+        );
+        p
+    };
+    let f2 = {
+        let mut p = polynomial::Polynomial::zero();
+        p.add_term(
+            polynomial::Exponent::new(vec![1, 1]),
+            num::BigRational::from_integer(1.into()),
+        );
+        p.add_term(
+            polynomial::Exponent::new(vec![0, 0]),
+            num::BigRational::from_integer((-1).into()),
+        );
+        p
+    };
+    println!("f1: {}", f1);
+    println!("f2: {}", f2);
+    let solution = find_solution(&vec![f1, f2])?;
 
     Ok(())
 }
