@@ -75,6 +75,10 @@ impl Exponent {
         let last = clone.0.pop()?;
         Some((last, Exponent(clone.0)))
     }
+
+    pub fn as_slice(&self) -> &[u32] {
+        &self.0
+    }
 }
 // ExponentにAdd トレイトを実装
 impl std::ops::Add for Exponent {

@@ -1,5 +1,8 @@
+use color_eyre::Result;
 use num::{BigRational, One, Zero};
 use vec1::Vec1;
+
+use crate::polynomial::Polynomial;
 
 fn clean(coefficients: &mut Vec1<BigRational>) {
     // popが成功すれば残りもVec1であるため続行する
@@ -210,6 +213,26 @@ pub fn uni_poly_derivative(poly: &UnivariatePolynomial) -> UnivariatePolynomial 
     }
 }
 
+/// PolynomialからUnivariatePolynomialを作る関数
+pub fn polynomial_to_univariate(poly: &Polynomial) -> Result<UnivariatePolynomial> {
+    let coeffs =
+    poly.raw_iter().map(|(exp, coeff)| {
+        if let [ind] = exp.as_slice() {
+            Ok((*ind as usize, coeff.clone()))
+        } else {
+            Err(color_eyre::eyre::eyre!(
+                "Polynomial contains terms with more than one variable, which cannot be converted to UnivariatePolynomial"
+            ))
+        }
+    }).collect::<Result<Vec<_>>>()?;
+    let max_ind = coeffs.iter().map(|(ind, _)| *ind).max().unwrap_or(0);
+    let mut univariate_coeffs = Vec1::new(BigRational::zero());
+    univariate_coeffs.extend(vec![BigRational::zero(); max_ind]);
+    for (ind, coeff) in coeffs {
+        univariate_coeffs[ind] = coeff;
+    }
+    Ok(UnivariatePolynomial(univariate_coeffs))
+}
 #[cfg(test)]
 mod tests {
     use super::*;
