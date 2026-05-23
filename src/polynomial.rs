@@ -224,6 +224,13 @@ impl Polynomial {
             None
         }
     }
+
+    /// 定数を生成する関数
+    pub fn from_constant(constant: BigRational) -> Self {
+        let mut p = Polynomial::zero();
+        p.add_term(Exponent::new(Vec::new()), constant);
+        p
+    }
 }
 
 // PolynomialにAdd トレイトを実装

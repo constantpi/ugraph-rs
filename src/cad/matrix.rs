@@ -60,6 +60,14 @@ where
         }
         det
     }
+
+    pub fn get_data(&self) -> Vec<Vec<R>> {
+        self.data
+            .clone()
+            .into_iter()
+            .map(|row| row.into_vec())
+            .collect()
+    }
 }
 
 /// permの偶奇を判定する関数
