@@ -42,11 +42,15 @@ fn determinant(matrix: &[Vec<BigRational>]) -> BigRational {
             mat.swap(i, pivot);
             det = -det;
         }
-        det = det * mat[i][i].clone();
+        det *= mat[i][i].clone();
         for j in (i + 1)..n {
             let factor = mat[j][i].clone() / mat[i][i].clone();
-            for k in i..n {
-                mat[j][k] = mat[j][k].clone() - factor.clone() * mat[i][k].clone();
+            // for k in i..n {
+            //     mat[j][k] = mat[j][k].clone() - factor.clone() * mat[i][k].clone();
+            // }
+            let row_i_tail: Vec<BigRational> = mat[i].iter().skip(i).cloned().collect();
+            for (a, b) in mat[j].iter_mut().skip(i).zip(row_i_tail.into_iter()) {
+                *a = (*a).clone() - factor.clone() * b;
             }
         }
     }
