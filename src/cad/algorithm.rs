@@ -54,6 +54,11 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
             print_sample_point(sample);
         }
     }
+    if sample_points.iter().any(|sample| sample.len() != num_vars) {
+        return Err(color_eyre::eyre::eyre!(
+            "Unexpected error: Sample points have incorrect number of variables"
+        ));
+    }
 
     todo!()
 }
