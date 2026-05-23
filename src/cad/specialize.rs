@@ -1,6 +1,7 @@
 use num::BigRational;
+use num_traits::Zero;
 
-use crate::cad::{Root, UnivariatePolynomial, polynomial_to_univariate, psc_0};
+use crate::cad::{UnivariatePolynomial, polynomial_to_univariate, psc_0};
 use crate::polynomial::{Exponent, Polynomial};
 
 fn generate_constant_polynomial(num_vars: usize, constant: &BigRational) -> Polynomial {
@@ -69,6 +70,36 @@ pub fn specialize_polynomial(
                     .and_then(|p| substitute_first_variable(&p, value, current_num_vars - i))
             })?;
     polynomial_to_univariate(&substituted_poly).ok()
+}
+
+/// すべての変数に値を代入して定数にする関数
+/// ただしこれは非ゼロだったら解でないことを保証する。
+/// ゼロになる場合は、解である可能性があるが、他の条件も満たす必要がある。
+pub fn evaluate_polynomial_at_constants(
+    poly: &Polynomial,
+    values: &[UnivariatePolynomial],
+) -> Option<BigRational> {
+    let current_num_vars = values.len();
+    let substituted_poly =
+        values
+            .iter()
+            .enumerate()
+            .fold(Some(poly.clone()), |current_poly, (i, value)| {
+                current_poly
+                    .and_then(|p| substitute_first_variable(&p, value, current_num_vars - i - 1))
+            })?;
+    if substituted_poly
+        .raw_iter()
+        .all(|(exp, _)| exp.as_slice().iter().all(|&e| e == 0))
+    {
+        if let Some((_, coeff)) = substituted_poly.raw_iter().next() {
+            Some(coeff.clone())
+        } else {
+            Some(BigRational::zero())
+        }
+    } else {
+        None // まだ変数が残っている場合はNoneを返す
+    }
 }
 
 #[cfg(test)]
