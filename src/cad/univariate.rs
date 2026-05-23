@@ -64,6 +64,10 @@ impl UnivariatePolynomial {
             .rev()
             .fold(BigRational::zero(), |acc, coeff| acc * value + coeff)
     }
+
+    pub fn leading_coeff(&self) -> BigRational {
+        self.0.last().clone()
+    }
 }
 
 impl std::ops::Add for UnivariatePolynomial {

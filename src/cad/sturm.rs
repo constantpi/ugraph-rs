@@ -81,6 +81,44 @@ fn count_sign_changes(sequence: &[UnivariatePolynomial], value: &BigRational) ->
     sign_changes
 }
 
+/// 列の多項式を受け取って、無限大に近づけたときの符号の変化を数える関数
+fn count_sign_changes_at_infinity(
+    sequence: &[UnivariatePolynomial],
+    is_positive_infinity: bool,
+) -> usize {
+    let leading_coeffs = sequence
+        .iter()
+        .map(|p| p.leading_coeff())
+        .collect::<Vec<_>>();
+    let mut sign_changes = 0;
+    let mut prev_sign = None;
+    let mut reversed = false;
+    for coeff in leading_coeffs {
+        let sign = coeff.cmp(&BigRational::zero());
+        if sign == std::cmp::Ordering::Equal {
+            panic!("Leading coefficient cannot be zero for counting sign changes at infinity");
+        }
+        let sign = if reversed { sign.reverse() } else { sign };
+        if let Some(prev) = prev_sign
+            && prev != sign
+        {
+            sign_changes += 1;
+        }
+        prev_sign = Some(sign);
+        if !is_positive_infinity {
+            reversed = !reversed;
+        }
+    }
+    sign_changes
+}
+
+/// 実数解の個数を求める関数
+fn count_real_roots(sequence: &[UnivariatePolynomial]) -> usize {
+    let sign_changes_at_positive_infinity = count_sign_changes_at_infinity(sequence, true);
+    let sign_changes_at_negative_infinity = count_sign_changes_at_infinity(sequence, false);
+    sign_changes_at_negative_infinity - sign_changes_at_positive_infinity
+}
+
 /// 指定された範囲の根の個数を数える関数
 fn count_roots_in_range(
     sequence: &[UnivariatePolynomial],
@@ -93,14 +131,13 @@ fn count_roots_in_range(
 }
 
 /// 解の存在範囲を求める関数
-fn range_of_roots(sequence: &Vec1<UnivariatePolynomial>) -> (BigRational, BigRational) {
-    let poly = sequence.first();
-    let degree = poly.degree();
+fn range_of_roots(sequence: &Vec1<UnivariatePolynomial>) -> (BigRational, BigRational, usize) {
+    let number_of_real_roots = count_real_roots(sequence);
     let mut abs = BigRational::one();
     loop {
         let low = -&abs;
-        if degree == count_roots_in_range(sequence, &low, &abs) {
-            break (low, abs);
+        if number_of_real_roots == count_roots_in_range(sequence, &low, &abs) {
+            break (low, abs, number_of_real_roots);
         }
         abs *= BigRational::from_integer(2.into());
     }
@@ -108,11 +145,10 @@ fn range_of_roots(sequence: &Vec1<UnivariatePolynomial>) -> (BigRational, BigRat
 
 pub fn sturm(poly: &UnivariatePolynomial) -> Vec<Root> {
     let square_free = square_free_part(poly);
-    let degree = square_free.degree();
     let sequence = eulers_algorithm(&square_free);
-    let (lower_bound, upper_bound) = range_of_roots(&sequence);
+    let (lower_bound, upper_bound, num_of_real_roots) = range_of_roots(&sequence);
     // ここからは根を二分探索で求める
-    let mut candidates = vec![(lower_bound, upper_bound, degree)];
+    let mut candidates = vec![(lower_bound, upper_bound, num_of_real_roots)];
     let mut roots = Vec::new();
     loop {
         let Some((low, high, count)) = candidates.pop() else {
@@ -181,6 +217,16 @@ mod tests {
                 BigRational::from_integer((-2).into()),
             ),
         ];
+        assert_eq!(roots, ans);
+
+        // 解が存在しない場合も正しく動くか
+        let poly = UnivariatePolynomial::new(vec1![
+            BigRational::from_integer(1.into()),
+            BigRational::from_integer(0.into()),
+            BigRational::from_integer(1.into())
+        ]);
+        let roots = sturm(&poly);
+        let ans = vec![];
         assert_eq!(roots, ans);
     }
 }
