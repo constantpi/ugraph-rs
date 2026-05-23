@@ -272,6 +272,7 @@ fn unique_roots(roots: Vec<Root>) -> Vec<Root> {
 pub fn find_unique_roots(polynomials: &[UnivariatePolynomial]) -> Vec<Root> {
     let all_roots = polynomials
         .iter()
+        .filter(|p| p.degree() > 0) // 定数多項式は根を持たないので無視する
         .flat_map(find_all_roots)
         .collect::<Vec<_>>();
     unique_roots(all_roots)
