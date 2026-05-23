@@ -1,9 +1,6 @@
 use color_eyre::Result;
-use vec1::Vec1;
 
-use super::{
-    Root, UnivariatePolynomial, find_all_roots, polynomial_to_univariate, project_polynomial,
-};
+use super::{Root, find_all_roots, polynomial_to_univariate, project_polynomial};
 use crate::polynomial::Polynomial;
 
 pub enum Solution {
@@ -11,7 +8,7 @@ pub enum Solution {
     Exist(Vec<Root>),
 }
 
-pub fn find_solution(polinomials: &Vec<Polynomial>) -> Result<Solution> {
+pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
     // 変数の数をまずは取得
     let Some(num_vars) = polinomials
         .iter()
@@ -20,7 +17,7 @@ pub fn find_solution(polinomials: &Vec<Polynomial>) -> Result<Solution> {
         return Ok(Solution::Exist(vec![])); // どの変数も出てこない場合は常に解が存在する
     };
     let mut current_num_vars = num_vars;
-    let mut current_polynomials = polinomials.clone();
+    let mut current_polynomials = polinomials.to_vec();
     let mut history = Vec::new();
     while current_num_vars > 1 {
         history.push(current_polynomials.clone());
@@ -33,7 +30,7 @@ pub fn find_solution(polinomials: &Vec<Polynomial>) -> Result<Solution> {
         .collect::<Result<Vec<_>>>()?;
     let all_roots = univariate_polynomials
         .iter()
-        .flat_map(|poly| find_all_roots(poly))
+        .flat_map(find_all_roots)
         .collect::<Vec<_>>();
     for root in all_roots {
         println!("Checking root: {}", root);

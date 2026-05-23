@@ -238,19 +238,21 @@ impl std::fmt::Display for UnivariatePolynomial {
             } else {
                 format!("x^{}", i)
             };
-            let coeff = if coeff.is_zero() {
+            let (coeff, is_positive) = if coeff.is_zero() {
                 continue;
             } else if coeff == &BigRational::one() && i != 0 {
-                String::new()
+                (String::new(), true)
+            } else if coeff > &BigRational::zero() {
+                (format!("{}", coeff), true)
             } else {
-                format!("{}", coeff)
+                (format!("{}", -coeff), false)
             };
             if i == degree {
                 write!(f, "{}{}", coeff, exp)?;
-            } else if coeff.starts_with('-') {
-                write!(f, " - {}{} ", &coeff[1..], exp)?;
-            } else {
+            } else if is_positive {
                 write!(f, " + {}{} ", coeff, exp)?;
+            } else {
+                write!(f, " - {}{} ", coeff, exp)?;
             }
         }
         Ok(())

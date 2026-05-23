@@ -7,7 +7,7 @@ use crate::cad::UnivariatePolynomial;
 
 pub fn rational_factorization(poly: &UnivariatePolynomial) -> Vec1<UnivariatePolynomial> {
     let coeffs = poly.get_coeffs();
-    let integer_coeffs = rational_to_integer_coeffs(&coeffs);
+    let integer_coeffs = rational_to_integer_coeffs(coeffs);
     let (monic_coeffs, leading_coeff) = monicize(&integer_coeffs);
     let poly = BigIntPoly::new(monic_coeffs.clone());
     let prime_factors = berlekamp_factorization(monic_coeffs);
