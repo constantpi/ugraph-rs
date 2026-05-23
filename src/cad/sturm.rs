@@ -1,5 +1,5 @@
 use num::{BigRational, One, Zero};
-use vec1::Vec1;
+use vec1::{Vec1, vec1};
 
 use super::{UnivariatePolynomial, uni_poly_derivative, uni_poly_div, uni_poly_remainder};
 use crate::polyfactor::rational_factorization;
@@ -52,6 +52,13 @@ impl Root {
                     range: Range::Interval(lower_bound, upper_bound),
                 }
             }
+        }
+    }
+
+    pub fn new_rational(r: BigRational) -> Self {
+        Root {
+            poly: UnivariatePolynomial::new(vec1![-r.clone(), BigRational::one()]),
+            range: Range::Exact(r),
         }
     }
 
