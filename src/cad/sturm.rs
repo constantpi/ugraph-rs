@@ -8,15 +8,20 @@ use crate::polyfactor::rational_factorization;
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Root {
     poly: UnivariatePolynomial, // 根を求めたい多項式
-    upper_bound: BigRational,   // 根の上界
-    lower_bound: BigRational,   // 根の下界
+    range: Range,               // 根の存在範囲
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Range {
+    Exact(BigRational),                 // 正確な値がわかっている場合
+    Interval(BigRational, BigRational), // 区間で表す場合 (a, b]
 }
 
 impl Root {
     pub fn new(
         poly: UnivariatePolynomial,
-        upper_bound: BigRational,
         lower_bound: BigRational,
+        upper_bound: BigRational,
     ) -> Self {
         let lt = poly.leading_coeff();
         // monicである必要がある。
@@ -35,19 +40,32 @@ impl Root {
                 let root = -b / a;
                 Root {
                     poly,
-                    upper_bound: root.clone(),
-                    lower_bound: root,
+                    range: Range::Exact(root),
                 }
             }
             _ => {
-                if upper_bound < lower_bound {
+                if upper_bound <= lower_bound {
                     panic!("Upper bound must be greater than or equal to lower bound");
                 }
                 Root {
                     poly,
-                    upper_bound,
-                    lower_bound,
+                    range: Range::Interval(lower_bound, upper_bound),
                 }
+            }
+        }
+    }
+
+    pub fn is_same_root(&self, other: &Root) -> bool {
+        if self.poly != other.poly {
+            false
+        } else {
+            match (&self.range, &other.range) {
+                (Range::Exact(r1), Range::Exact(r2)) => r1 == r2,
+                (Range::Interval(l1, u1), Range::Interval(l2, u2)) => {
+                    // 区間が重なっているかどうかで同じ根かどうかを判断する
+                    l1 < u2 && l2 < u1
+                }
+                _ => false,
             }
         }
     }
@@ -184,7 +202,7 @@ pub fn find_all_roots(poly: &UnivariatePolynomial) -> Vec<Root> {
                 break roots;
             };
             if count == 1 {
-                let root = Root::new(factor.clone(), high, low);
+                let root = Root::new(factor.clone(), low, high);
                 roots.push(root);
                 continue;
             }
@@ -204,13 +222,26 @@ pub fn find_all_roots(poly: &UnivariatePolynomial) -> Vec<Root> {
     ans
 }
 
+pub fn unique_roots(roots: Vec<Root>) -> Vec<Root> {
+    let mut unique: Vec<Root> = Vec::new();
+    for root in roots {
+        if !unique.iter().any(|r| r.is_same_root(&root)) {
+            unique.push(root);
+        }
+    }
+    unique
+}
+
 impl std::fmt::Display for Root {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "Root of {} in range [{}, {}]",
-            self.poly, self.lower_bound, self.upper_bound
-        )
+        match &self.range {
+            Range::Exact(root) => write!(f, "Root of {} is exactly {}", self.poly, root),
+            Range::Interval(lower, upper) => write!(
+                f,
+                "Root of {} is in the interval [{}, {}]",
+                self.poly, lower, upper
+            ),
+        }
     }
 }
 
@@ -253,16 +284,16 @@ mod tests {
                     BigRational::from_integer((-1).into()),
                     BigRational::from_integer(1.into())
                 ]),
-                BigRational::from_integer(1.into()),
                 BigRational::from_integer((-1).into()),
+                BigRational::from_integer(1.into()),
             ),
             Root::new(
                 UnivariatePolynomial::new(vec1![
                     BigRational::from_integer(1.into()),
                     BigRational::from_integer(1.into())
                 ]),
-                BigRational::from_integer(2.into()),
                 BigRational::from_integer((-2).into()),
+                BigRational::from_integer(2.into()),
             ),
         ];
         assert_eq!(roots, ans);

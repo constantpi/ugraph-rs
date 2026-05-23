@@ -1,6 +1,6 @@
 use color_eyre::Result;
 
-use super::{Root, find_all_roots, polynomial_to_univariate, project_polynomial};
+use super::{Root, find_all_roots, polynomial_to_univariate, project_polynomial, unique_roots};
 use crate::polynomial::Polynomial;
 
 pub enum Solution {
@@ -28,10 +28,12 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
         .iter()
         .map(polynomial_to_univariate)
         .collect::<Result<Vec<_>>>()?;
-    let all_roots = univariate_polynomials
-        .iter()
-        .flat_map(find_all_roots)
-        .collect::<Vec<_>>();
+    let all_roots = unique_roots(
+        univariate_polynomials
+            .iter()
+            .flat_map(find_all_roots)
+            .collect::<Vec<_>>(),
+    );
     for root in all_roots {
         println!("Checking root: {}", root);
     }
