@@ -50,8 +50,8 @@ pub fn psc_0(f: &[Polynomial], g: &[Polynomial]) -> Polynomial {
     match (f.len(), g.len()) {
         (0, _) => Polynomial::zero(),
         (_, 0) => Polynomial::zero(),
-        (_, 1) => f[0].clone(),
-        (1, _) => g[0].clone(),
+        (_, 1) => g[0].clone(),
+        (1, _) => f[0].clone(),
         _ => psc(f, g, 0),
     }
 }
