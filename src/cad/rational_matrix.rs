@@ -58,3 +58,24 @@ pub fn polynomial_matrix_determinant(matrix: Vec<Vec<Polynomial>>) -> Option<Big
     let rational_matrix = polynomial_matrix_to_rational_matrix(matrix)?;
     Some(determinant(&rational_matrix))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_determinant() {
+        let mat = vec![
+            vec![
+                BigRational::from_integer(1.into()),
+                BigRational::from_integer(2.into()),
+            ],
+            vec![
+                BigRational::from_integer(3.into()),
+                BigRational::from_integer(4.into()),
+            ],
+        ];
+        let det = determinant(&mat);
+        assert_eq!(det, BigRational::from_integer((-2).into()));
+    }
+}
