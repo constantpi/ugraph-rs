@@ -5,7 +5,8 @@ use vec1::Vec1;
 use super::{BigIntPoly, berlekamp_factorization, hensel_lifting, reconstruct_factors};
 use crate::cad::UnivariatePolynomial;
 
-pub fn rational_factorization(coeffs: Vec<BigRational>) -> Vec1<UnivariatePolynomial> {
+pub fn rational_factorization(poly: &UnivariatePolynomial) -> Vec1<UnivariatePolynomial> {
+    let coeffs = poly.get_coeffs();
     let integer_coeffs = rational_to_integer_coeffs(&coeffs);
     let (monic_coeffs, leading_coeff) = monicize(&integer_coeffs);
     let poly = BigIntPoly::new(monic_coeffs.clone());
@@ -115,13 +116,14 @@ mod tests {
 
     #[test]
     fn test_rational_factorization() {
-        let coeffs = vec![
+        let coeffs = vec1![
             BigRational::new(BigInt::from(-3), BigInt::from(5)),
             BigRational::new(BigInt::from(-6), BigInt::from(5)),
             BigRational::new(BigInt::from(1), BigInt::from(10)),
             BigRational::new(BigInt::from(1), BigInt::from(5)),
         ];
-        let factors = rational_factorization(coeffs);
+        let poly = UnivariatePolynomial::new(coeffs);
+        let factors = rational_factorization(&poly);
         let expected = vec1![
             UnivariatePolynomial::new(vec1![
                 BigRational::new(BigInt::from(-6), BigInt::from(1)),
