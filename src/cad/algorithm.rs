@@ -1,8 +1,8 @@
 use color_eyre::Result;
 
 use super::{
-    Root, UnivariatePolynomial, calc_sample_points, find_unique_roots, lifting,
-    polynomial_to_univariate, project_polynomial,
+    Root, UnivariatePolynomial, calc_sample_points, find_unique_roots, is_possible_solution,
+    lifting, polynomial_to_univariate, project_polynomial,
 };
 use crate::polynomial::Polynomial;
 
@@ -58,6 +58,23 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
         return Err(color_eyre::eyre::eyre!(
             "Unexpected error: Sample points have incorrect number of variables"
         ));
+    }
+    println!("Total sample points after lifting: {}", sample_points.len());
+    let possible_solutions = {
+        let mut acc = Vec::new();
+        for sample in sample_points {
+            print_sample_point(&sample);
+            if is_possible_solution(&polinomials, &sample)? {
+                println!("Found possible solution");
+                acc.push(sample);
+            } else {
+                println!("Sample point is not a solution");
+            }
+        }
+        acc
+    };
+    for solution in &possible_solutions {
+        print_sample_point(solution);
     }
 
     todo!()
