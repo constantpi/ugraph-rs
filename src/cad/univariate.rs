@@ -68,6 +68,10 @@ impl UnivariatePolynomial {
     pub fn leading_coeff(&self) -> BigRational {
         self.0.last().clone()
     }
+
+    pub fn get_coeffs(&self) -> &Vec1<BigRational> {
+        &self.0
+    }
 }
 
 impl std::ops::Add for UnivariatePolynomial {

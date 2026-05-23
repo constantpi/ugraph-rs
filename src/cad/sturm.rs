@@ -1,9 +1,8 @@
 use num::{BigRational, One, Zero};
 use vec1::Vec1;
 
-use crate::cad::univariate::{
-    UnivariatePolynomial, uni_poly_derivative, uni_poly_div, uni_poly_remainder,
-};
+use super::{UnivariatePolynomial, uni_poly_derivative, uni_poly_div, uni_poly_remainder};
+use crate::polyfactor::rational_factorization;
 
 /// 解を表す構造体
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -143,33 +142,39 @@ fn range_of_roots(sequence: &Vec1<UnivariatePolynomial>) -> (BigRational, BigRat
     }
 }
 
-pub fn sturm(poly: &UnivariatePolynomial) -> Vec<Root> {
+pub fn find_all_roots(poly: &UnivariatePolynomial) -> Vec<Root> {
     let square_free = square_free_part(poly);
-    let sequence = eulers_algorithm(&square_free);
-    let (lower_bound, upper_bound, num_of_real_roots) = range_of_roots(&sequence);
-    // ここからは根を二分探索で求める
-    let mut candidates = vec![(lower_bound, upper_bound, num_of_real_roots)];
-    let mut roots = Vec::new();
-    loop {
-        let Some((low, high, count)) = candidates.pop() else {
-            break roots;
-        };
-        if count == 1 {
-            let root = Root::new(poly.clone(), high, low);
-            roots.push(root);
-            continue;
-        }
+    let factors = rational_factorization(&square_free);
+    let mut ans = Vec::new();
+    for factor in &factors {
+        let sequence = eulers_algorithm(factor);
+        let (lower_bound, upper_bound, num_of_real_roots) = range_of_roots(&sequence);
+        // ここからは根を二分探索で求める
+        let mut candidates = vec![(lower_bound, upper_bound, num_of_real_roots)];
+        let mut roots = Vec::new();
+        let roots = loop {
+            let Some((low, high, count)) = candidates.pop() else {
+                break roots;
+            };
+            if count == 1 {
+                let root = Root::new(factor.clone(), high, low);
+                roots.push(root);
+                continue;
+            }
 
-        let mid = (&low + &high) / BigRational::from_integer(2.into());
-        let low_count = count_roots_in_range(&sequence, &low, &mid);
-        let high_count = count - low_count;
-        if low_count > 0 {
-            candidates.push((low, mid.clone(), low_count));
-        }
-        if high_count > 0 {
-            candidates.push((mid, high, high_count));
-        }
+            let mid = (&low + &high) / BigRational::from_integer(2.into());
+            let low_count = count_roots_in_range(&sequence, &low, &mid);
+            let high_count = count - low_count;
+            if low_count > 0 {
+                candidates.push((low, mid.clone(), low_count));
+            }
+            if high_count > 0 {
+                candidates.push((mid, high, high_count));
+            }
+        };
+        ans.extend(roots);
     }
+    ans
 }
 
 #[cfg(test)]
@@ -204,16 +209,22 @@ mod tests {
             BigRational::from_integer(1.into()),
             BigRational::from_integer(1.into())
         ]);
-        let roots = sturm(&poly);
+        let roots = find_all_roots(&poly);
         let ans = vec![
             Root::new(
-                poly.clone(),
-                BigRational::from_integer(2.into()),
-                BigRational::from_integer(0.into()),
+                UnivariatePolynomial::new(vec1![
+                    BigRational::from_integer((-1).into()),
+                    BigRational::from_integer(1.into())
+                ]),
+                BigRational::from_integer(1.into()),
+                BigRational::from_integer((-1).into()),
             ),
             Root::new(
-                poly.clone(),
-                BigRational::from_integer(0.into()),
+                UnivariatePolynomial::new(vec1![
+                    BigRational::from_integer(1.into()),
+                    BigRational::from_integer(1.into())
+                ]),
+                BigRational::from_integer(2.into()),
                 BigRational::from_integer((-2).into()),
             ),
         ];
@@ -225,7 +236,7 @@ mod tests {
             BigRational::from_integer(0.into()),
             BigRational::from_integer(1.into())
         ]);
-        let roots = sturm(&poly);
+        let roots = find_all_roots(&poly);
         let ans = vec![];
         assert_eq!(roots, ans);
     }
