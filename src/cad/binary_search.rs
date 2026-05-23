@@ -1,24 +1,35 @@
 use itertools::Itertools;
 use num::{BigRational, Signed};
 
-use super::{Range, Root};
+use super::{Range, Root, UnivariatePolynomial};
+
+/// 解を含む範囲の精度を高める関数。
+/// fは最小多項式であって2次以上であること。
+/// lower < upperであり、この間にfの根が1つだけ存在することが保証されていること。
+pub fn refine_range(
+    f: &UnivariatePolynomial,
+    lower: &BigRational,
+    upper: &BigRational,
+) -> (BigRational, BigRational) {
+    // 順にlower, midpoint, upperを評価して符号が変わるところを探す
+    // 評価結果が0になることはありえない。もしそうなら次数が1となるから。
+    let midpoint = (lower.clone() + upper.clone()) / BigRational::from_integer(2.into());
+    let eval_lower = f.substitute(lower);
+    let eval_midpoint = f.substitute(&midpoint);
+    if eval_lower.signum() != eval_midpoint.signum() {
+        (lower.clone(), midpoint)
+    } else {
+        (midpoint, upper.clone())
+    }
+}
 
 /// RootがIntervalのときにその精度を高める
-pub fn refine_root(root: &Root) -> Option<Root> {
+fn refine_root(root: &Root) -> Option<Root> {
     if let Some((lower, upper)) = root.get_interval() {
         // この時点でlower < upperは保証されている
         // また最小多項式の次数は2以上であることも保証されている
         let poly = root.get_poly();
-        let midpoint = (lower.clone() + upper.clone()) / BigRational::from_integer(2.into());
-        // 順にlower, midpoint, upperを評価して符号が変わるところを探す
-        // 評価結果が0になることはありえない。もしそうなら次数が1となるから。
-        let eval_lower = poly.substitute(&lower);
-        let eval_midpoint = poly.substitute(&midpoint);
-        let (new_low, new_high) = if eval_lower.signum() != eval_midpoint.signum() {
-            (lower, midpoint)
-        } else {
-            (midpoint, upper)
-        };
+        let (new_low, new_high) = refine_range(poly, &lower, &upper);
         Some(Root::new(poly.clone(), new_low, new_high))
     } else {
         None
