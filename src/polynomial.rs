@@ -76,6 +76,13 @@ impl Exponent {
         Some((last, Exponent(clone.0)))
     }
 
+    /// 一番初めの変数の次数とその変数を除いた指数を返す
+    pub fn split_first(&self) -> Option<(u32, Self)> {
+        let clone = self.clone();
+        let (first, rest) = clone.0.split_first()?;
+        Some((*first, Exponent(rest.to_vec())))
+    }
+
     pub fn as_slice(&self) -> &[u32] {
         &self.0
     }
