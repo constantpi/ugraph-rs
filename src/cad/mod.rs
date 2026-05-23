@@ -11,7 +11,7 @@ pub use algorithm::find_solution;
 pub use binary_search::{calc_sample_points, refine_root};
 use lift::lifting;
 pub use proj::project_polynomial;
-use proj::psc;
+use proj::psc_0;
 use specialize::specialize_polynomial;
 use sturm::{Range, Root, find_unique_roots};
 pub use univariate::{UnivariatePolynomial, polynomial_to_univariate};

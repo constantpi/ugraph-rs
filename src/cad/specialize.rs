@@ -1,6 +1,6 @@
 use num::BigRational;
 
-use crate::cad::{Root, UnivariatePolynomial, polynomial_to_univariate, psc};
+use crate::cad::{Root, UnivariatePolynomial, polynomial_to_univariate, psc_0};
 use crate::polynomial::{Exponent, Polynomial};
 
 fn generate_constant_polynomial(num_vars: usize, constant: &BigRational) -> Polynomial {
@@ -49,7 +49,7 @@ fn substitute_first_variable(
     let poly_coeffs = collect_first_variable_coefficients(poly)?;
     let value_coeffs = univariate_to_coefficients(value, num_vars);
 
-    let resultant = psc(&poly_coeffs, &value_coeffs, 0);
+    let resultant = psc_0(&poly_coeffs, &value_coeffs);
     Some(resultant)
 }
 

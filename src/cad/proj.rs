@@ -46,7 +46,17 @@ fn is_constant_for_last_variable(poly: &Polynomial) -> bool {
     }
 }
 
-pub fn psc(f: &[Polynomial], g: &[Polynomial], l: usize) -> Polynomial {
+pub fn psc_0(f: &[Polynomial], g: &[Polynomial]) -> Polynomial {
+    match (f.len(), g.len()) {
+        (0, _) => Polynomial::zero(),
+        (_, 0) => Polynomial::zero(),
+        (_, 1) => f[0].clone(),
+        (1, _) => g[0].clone(),
+        _ => psc(f, g, 0),
+    }
+}
+
+fn psc(f: &[Polynomial], g: &[Polynomial], l: usize) -> Polynomial {
     let Some(f_degree) = f.len().checked_sub(1) else {
         return Polynomial::zero();
     };
