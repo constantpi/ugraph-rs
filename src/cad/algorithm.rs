@@ -61,7 +61,7 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
         if let Solution::Exist(refined_solution) =
             is_possible_solution_interval(polinomials, solution)
         {
-            print_sample_point(&solution);
+            print_sample_point(solution);
             println!("This sample point is a possible solution.");
             ans = Some(refined_solution.clone());
         }

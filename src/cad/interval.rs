@@ -116,10 +116,14 @@ fn mul_ranges(range1: &SignedRange, range2: &SignedRange) -> SignedRange {
     }
 }
 
-pub fn evaluate_polynomial_at_signed_range(
-    poly: &Polynomial,
-    sample: &[Root],
-) -> (BigRational, BigRational) {
+/// 区間の正負と0をまたいでいるか
+pub enum SignRelation {
+    Positive,
+    Negative,
+    CrossZero(BigRational),
+}
+
+pub fn evaluate_polynomial_at_signed_range(poly: &Polynomial, sample: &[Root]) -> SignRelation {
     let sample_ranges = sample.iter().map(get_signed_range).collect::<Vec<_>>();
     let mut lower = BigRational::zero();
     let mut upper = BigRational::zero();
@@ -149,5 +153,11 @@ pub fn evaluate_polynomial_at_signed_range(
             }
         }
     }
-    (lower, upper)
+    if lower.is_positive() {
+        SignRelation::Positive
+    } else if upper.is_negative() {
+        SignRelation::Negative
+    } else {
+        SignRelation::CrossZero(lower.abs().max(upper.abs()))
+    }
 }
