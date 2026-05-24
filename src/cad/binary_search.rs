@@ -24,7 +24,7 @@ pub fn refine_range(
 }
 
 /// RootがIntervalのときにその精度を高める
-fn refine_root(root: &Root) -> Option<Root> {
+pub fn refine_root(root: &Root) -> Option<Root> {
     if let Some((lower, upper)) = root.get_interval() {
         // この時点でlower < upperは保証されている
         // また最小多項式の次数は2以上であることも保証されている
