@@ -28,6 +28,10 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
         current_num_vars -= 1;
         current_polynomials = project_polynomial(&current_polynomials);
     }
+    println!(
+        "Finished projection. Number of projected polynomials: {}",
+        current_polynomials.len()
+    );
     let univariate_polynomials = current_polynomials
         .iter()
         .map(polynomial_to_univariate)
@@ -39,6 +43,7 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
         .collect::<Vec<_>>();
     // historyを逆順にたどりながら、sample_pointsをliftingしていく
     for polynomials in history.into_iter().rev() {
+        println!("sample points before lifting: {}", sample_points.len());
         sample_points = lifting(&polynomials, &sample_points)?;
     }
     if sample_points.iter().any(|sample| sample.len() != num_vars) {

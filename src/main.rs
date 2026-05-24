@@ -2,12 +2,14 @@ mod cad;
 mod coordinate;
 mod graph;
 mod groebner;
+mod linear_algebra;
 mod polyfactor;
 mod polynomial;
 
 use crate::cad::{UnivariatePolynomial, find_solution, project_polynomial};
 use crate::coordinate::graph_to_polynomials;
 use crate::graph::{generate_graph, simplify_graph};
+use crate::linear_algebra::generate_random_linear_polynomials;
 use crate::polyfactor::rational_factorization;
 
 use color_eyre::Result;
@@ -205,6 +207,13 @@ fn main() -> Result<()> {
     // }
     let solution = find_solution(&polynomials)?;
     println!("Solution for triangle graph: {}", solution);
+
+    let random_polynomials = generate_random_linear_polynomials(4, 4)?;
+    for (i, poly) in random_polynomials.iter().enumerate() {
+        println!("Random polynomial {}: {}", i + 1, poly);
+    }
+    let solution = find_solution(&random_polynomials)?;
+    println!("Solution for random linear polynomials: {}", solution);
     Ok(())
 }
 
