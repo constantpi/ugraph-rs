@@ -155,7 +155,7 @@ fn main() -> Result<()> {
     let poly = UnivariatePolynomial::new(coeffs);
     let factors = rational_factorization(&poly);
     for (i, factor) in factors.iter().enumerate() {
-        println!("Factor {}: {:?}", i + 1, factor);
+        println!("Factor {}: {}", i + 1, factor);
     }
 
     // x^2 + y^2 = 4, xy = 1を満たす点を求める
@@ -192,6 +192,19 @@ fn main() -> Result<()> {
     let solution = find_solution(&[f1, f2])?;
 
     println!("Solution: {}", solution);
+
+    // 正三角形を2つくっつけたグラフの解を求める
+    // let graph = generate_graph(4, &[(0, 1), (2, 0), (0, 3), (1, 3), (2, 3)])?;
+    let graph = generate_graph(4, &[(0, 1), (1, 2), (2, 0), (1, 3), (0, 3)])?;
+
+    // let graph = generate_graph(4, &[(0, 1), (1, 2), (2, 3), (3, 0), (0, 2)])?;
+    let polynomials = graph_to_polynomials(&graph);
+    // println!("Polynomials for triangle graph:");
+    // for (i, poly) in polynomials.iter().enumerate() {
+    //     println!("f{}: {}", i + 1, poly);
+    // }
+    let solution = find_solution(&polynomials)?;
+    println!("Solution for triangle graph: {}", solution);
     Ok(())
 }
 
