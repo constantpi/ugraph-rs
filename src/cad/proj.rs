@@ -119,7 +119,10 @@ pub fn project_polynomial(polys: &[Polynomial]) -> Vec<Polynomial> {
 
     // proj1の計算
     for coeffs in coeff_lists.iter() {
-        for coeff in coeffs {
+        for coeff in coeffs.iter().rev() {
+            if coeff.is_fully_constant() {
+                break;
+            }
             projected.push(coeff.clone());
         }
     }
@@ -127,11 +130,14 @@ pub fn project_polynomial(polys: &[Polynomial]) -> Vec<Polynomial> {
     // proj2の計算
     for coeffs in coeff_lists.iter() {
         let len = coeffs.len();
-        for i in 2..=len {
+        for i in (2..=len).rev() {
             let f = &coeffs[..i];
             let df = &differentiate_coefficients(f);
             let pscs = psc_list(f, df);
             projected.extend(pscs);
+            if coeffs[i - 1].is_fully_constant() {
+                break;
+            }
         }
     }
 
@@ -139,11 +145,19 @@ pub fn project_polynomial(polys: &[Polynomial]) -> Vec<Polynomial> {
     for (coeffs1, coeffs2) in coeff_lists.iter().tuple_combinations() {
         let len1 = coeffs1.len();
         let len2 = coeffs2.len();
-        for (i, j) in iproduct!(2..=len1, 2..=len2) {
-            let f = &coeffs1[..i];
-            let g = &coeffs2[..j];
-            let pscs = psc_list(f, g);
-            projected.extend(pscs);
+        for i in (2..=len1).rev() {
+            for j in (2..=len2).rev() {
+                let f = &coeffs1[..i];
+                let g = &coeffs2[..j];
+                let pscs = psc_list(f, g);
+                projected.extend(pscs);
+                if coeffs2[j - 1].is_fully_constant() {
+                    break;
+                }
+            }
+            if coeffs1[i - 1].is_fully_constant() {
+                break;
+            }
         }
     }
 
