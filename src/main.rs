@@ -189,8 +189,9 @@ fn main() -> Result<()> {
     };
     println!("f1: {}", f1);
     println!("f2: {}", f2);
-    let _solution = find_solution(&[f1, f2])?;
+    let solution = find_solution(&[f1, f2])?;
 
+    println!("Solution: {}", solution);
     Ok(())
 }
 

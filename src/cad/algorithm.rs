@@ -2,10 +2,11 @@ use color_eyre::Result;
 
 use super::{
     Root, calc_sample_points, find_unique_roots, is_possible_solution,
-    lifting, polynomial_to_univariate, project_polynomial,
+    is_possible_solution_interval, lifting, polynomial_to_univariate, project_polynomial,
 };
 use crate::polynomial::Polynomial;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Solution {
     NoSolution,
     Exist(Vec<Root>),
@@ -32,27 +33,13 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
         .map(polynomial_to_univariate)
         .collect::<Result<Vec<_>>>()?;
     let all_roots = find_unique_roots(&univariate_polynomials);
-    for root in &all_roots {
-        println!("Found root: {}", root);
-    }
     let mut sample_points = calc_sample_points(&all_roots)
         .iter()
         .map(|r| vec![r.clone()])
         .collect::<Vec<_>>();
-    println!("Sample points length: {}", sample_points.len());
-    for sample in sample_points.iter() {
-        println!("Trying sample point: {}", sample[0]);
-    }
     // historyを逆順にたどりながら、sample_pointsをliftingしていく
     for polynomials in history.into_iter().rev() {
         sample_points = lifting(&polynomials, &sample_points)?;
-        println!(
-            "After lifting, sample points length: {}",
-            sample_points.len()
-        );
-        for sample in &sample_points {
-            print_sample_point(sample);
-        }
     }
     if sample_points.iter().any(|sample| sample.len() != num_vars) {
         return Err(color_eyre::eyre::eyre!(
@@ -63,21 +50,26 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
     let possible_solutions = {
         let mut acc = Vec::new();
         for sample in sample_points {
-            print_sample_point(&sample);
             if is_possible_solution(polinomials, &sample)? {
-                println!("Found possible solution");
                 acc.push(sample);
-            } else {
-                println!("Sample point is not a solution");
             }
         }
         acc
     };
+    let mut ans = None;
     for solution in &possible_solutions {
-        print_sample_point(solution);
+        if let Solution::Exist(refined_solution) =
+            is_possible_solution_interval(polinomials, solution)
+        {
+            print_sample_point(&solution);
+            println!("This sample point is a possible solution.");
+            ans = Some(refined_solution.clone());
+        }
     }
-
-    todo!()
+    Ok(match ans {
+        Some(solution) => Solution::Exist(solution),
+        None => Solution::NoSolution,
+    })
 }
 
 fn print_sample_point(sample: &[Root]) {
@@ -89,4 +81,22 @@ fn print_sample_point(sample: &[Root]) {
         print!("{}", root);
     }
     println!(")");
+}
+
+impl std::fmt::Display for Solution {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Solution::NoSolution => write!(f, "No solution"),
+            Solution::Exist(sample) => {
+                write!(f, "Exist: (")?;
+                for (i, root) in sample.iter().enumerate() {
+                    if i > 0 {
+                        write!(f, ", ")?;
+                    }
+                    write!(f, "{}", root)?;
+                }
+                write!(f, ")")
+            }
+        }
+    }
 }

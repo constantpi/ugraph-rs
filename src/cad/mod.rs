@@ -10,10 +10,12 @@ mod specialize;
 mod sturm;
 mod univariate;
 
+use algorithm::Solution;
 pub use algorithm::find_solution;
 pub use binary_search::calc_sample_points;
-use binary_search::refine_range;
-use judge::is_possible_solution;
+use binary_search::{refine_range, refine_root};
+use interval::evaluate_polynomial_at_signed_range;
+use judge::{is_possible_solution, is_possible_solution_interval};
 use lift::lifting;
 pub use proj::project_polynomial;
 use proj::psc_0;
