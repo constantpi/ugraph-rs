@@ -210,14 +210,15 @@ pub fn uni_poly_derivative(poly: &UnivariatePolynomial) -> UnivariatePolynomial 
 pub fn polynomial_to_univariate(poly: &Polynomial) -> Result<UnivariatePolynomial> {
     let coeffs =
     poly.raw_iter().map(|(exp, coeff)| {
-        if let [ind] = exp.as_slice() {
-            Ok((*ind as usize, coeff.clone()))
-        } else {
-            Err(color_eyre::eyre::eyre!(
+        match exp.as_slice() {
+            [] => Ok((0, coeff.clone())),
+            [ind] => Ok((*ind as usize, coeff.clone())),
+            _ => Err(color_eyre::eyre::eyre!(
                 "Polynomial contains terms with more than one variable, which cannot be converted to UnivariatePolynomial"
-            ))
+            )),
         }
     }).collect::<Result<Vec<_>>>()?;
+
     let max_ind = coeffs.iter().map(|(ind, _)| *ind).max().unwrap_or(0);
     let mut univariate_coeffs = Vec1::new(BigRational::zero());
     univariate_coeffs.extend(vec![BigRational::zero(); max_ind]);
