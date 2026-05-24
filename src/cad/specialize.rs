@@ -46,6 +46,10 @@ fn substitute_first_variable(
     value: &UnivariatePolynomial,
     num_vars: usize, // 残った変数の数
 ) -> Option<Polynomial> {
+    if let Some(constant_poly) = poly.constant_term_first() {
+        // もし最初の変数について定数項しかなければ、そのまま返す
+        return Some(constant_poly);
+    }
     let poly_coeffs = collect_first_variable_coefficients(poly)?;
     let value_coeffs = univariate_to_coefficients(value, num_vars);
 

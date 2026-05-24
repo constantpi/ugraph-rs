@@ -207,6 +207,25 @@ impl Polynomial {
         Some(constant)
     }
 
+    /// 先頭についての定数であれば一変数を除いた多項式を返す
+    pub fn constant_term_first(&self) -> Option<Polynomial> {
+        if let Some(rational) = self.as_constant() {
+            return Some(Polynomial::from_constant(rational));
+        }
+        let mut constant = Polynomial::zero();
+        for (exp, coeff) in self.raw_iter() {
+            let Some((first, rest)) = exp.split_first() else {
+                return None; // 先頭の変数がない項がある場合はNoneを返す
+            };
+            if first == 0 {
+                constant.add_term(rest, coeff.clone());
+            } else {
+                return None; // 先頭の変数の次数が0でない項がある場合はNoneを返す
+            }
+        }
+        Some(constant)
+    }
+
     pub fn is_fully_constant(&self) -> bool {
         self.raw_iter()
             .all(|(exp, _)| exp.0.iter().all(|&e| e == 0))
