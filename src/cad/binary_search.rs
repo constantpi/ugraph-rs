@@ -81,6 +81,9 @@ pub fn calc_sample_points(roots: &[Root]) -> Vec<Root> {
             first_lower - BigRational::from_integer(1.into()),
         ));
         sample_points.push(first.clone());
+    } else {
+        // 根がない場合は適当に0をサンプル点として追加しておく
+        sample_points.push(Root::new_rational(BigRational::from_integer(0.into())));
     }
     for (s, t) in distinct_roots.iter().tuple_windows() {
         let s_upper = s.get_upper_bound();
