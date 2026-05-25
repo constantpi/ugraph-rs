@@ -2,13 +2,12 @@ use crate::polynomial::{Exponent, Polynomial};
 
 use color_eyre::Result;
 use num::BigRational;
-use rand::Rng;
 use rand::prelude::*;
 
 /// 行列とベクトルからPolynomialを生成する関数
 fn matrix_vector_to_polynomial(
-    matrix: &Vec<Vec<BigRational>>,
-    vector: &Vec<BigRational>,
+    matrix: &[Vec<BigRational>],
+    vector: &[BigRational],
 ) -> Result<Vec<Polynomial>> {
     if matrix.len() != vector.len() {
         return Err(color_eyre::eyre::eyre!(

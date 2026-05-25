@@ -1,5 +1,5 @@
 use crate::cad::matrix::{Matrix, generate_neg_list};
-use itertools::{Itertools, iproduct};
+use itertools::Itertools;
 use num::BigRational;
 
 use super::polynomial_matrix_determinant;
