@@ -5,16 +5,31 @@ use super::{Range, Root, refine_range};
 use crate::polynomial::Polynomial;
 
 /// 符号の確定した区間を表す構造体
-struct SignedInterval {
+pub struct SignedInterval {
     is_positive: bool,
     abs_lower: BigRational,
     abs_upper: BigRational,
 }
 
 /// 符号の確定した区間または厳密値を表す構造体
-enum SignedRange {
+pub enum SignedRange {
     Exact(BigRational),
     Interval(SignedInterval),
+}
+
+impl SignedInterval {
+    /// 区間が正の数のみを含むか
+    pub fn is_positive(&self) -> bool {
+        self.is_positive
+    }
+
+    pub fn get_lower(&self) -> &BigRational {
+        &self.abs_lower
+    }
+
+    pub fn get_upper(&self) -> &BigRational {
+        &self.abs_upper
+    }
 }
 
 /// lowerとupperが符号をまたがないかどうかを判定する関数
@@ -29,7 +44,7 @@ fn is_sign_consistent(lower: &BigRational, upper: &BigRational) -> Option<bool> 
 }
 
 /// Rootから符号の確定した区間を取り出す関数
-fn get_signed_range(root: &Root) -> SignedRange {
+pub fn get_signed_range(root: &Root) -> SignedRange {
     match root.get_range() {
         Range::Exact(r) => SignedRange::Exact(r.clone()),
         Range::Interval(lower, upper) => {
@@ -55,7 +70,7 @@ fn get_signed_range(root: &Root) -> SignedRange {
     }
 }
 
-fn pow_range(base: &SignedRange, exp: u32) -> SignedRange {
+pub fn pow_range(base: &SignedRange, exp: u32) -> SignedRange {
     match base {
         SignedRange::Exact(r) => SignedRange::Exact(r.pow(exp as i32)),
         SignedRange::Interval(interval) => {
@@ -97,7 +112,7 @@ fn mul_constant_range(range: &SignedRange, constant: &BigRational) -> SignedRang
     }
 }
 
-fn mul_ranges(range1: &SignedRange, range2: &SignedRange) -> SignedRange {
+pub fn mul_ranges(range1: &SignedRange, range2: &SignedRange) -> SignedRange {
     match (range1, range2) {
         (SignedRange::Exact(r1), SignedRange::Exact(r2)) => SignedRange::Exact(r1 * r2),
         (SignedRange::Exact(r), interval) | (interval, SignedRange::Exact(r)) => {

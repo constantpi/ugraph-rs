@@ -13,6 +13,7 @@ use big_int_poly::BigIntPoly;
 use euler::extended_gcd;
 use factor_combination::reconstruct_factors;
 pub use factorization::rational_factorization;
+pub use factorization::rational_to_integer_coeffs;
 use hensel::hensel_lifting;
 use matrix::matrix_kernel;
 use poly::{PrimeModPoly, find_ok_prime, gcd, mod_bigint, mod_poly_division, mod_poly_remainder};

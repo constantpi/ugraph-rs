@@ -23,7 +23,7 @@ pub fn rational_factorization(poly: &UnivariatePolynomial) -> Vec1<UnivariatePol
 }
 
 /// BigRationalの係数からBigIntの係数に変換する関数
-fn rational_to_integer_coeffs(coeffs: &[BigRational]) -> Vec<BigInt> {
+pub fn rational_to_integer_coeffs(coeffs: &[BigRational]) -> Vec<BigInt> {
     // まずは分母の最小公倍数を求める
     let lcm = coeffs.iter().fold(BigInt::from(1), |acc, coeff| {
         let denom = coeff.denom();
