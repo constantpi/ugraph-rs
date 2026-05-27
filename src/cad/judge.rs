@@ -20,7 +20,10 @@ fn is_possible_root(poly: &Polynomial, sample: &[Root]) -> Result<bool> {
 }
 
 /// サンプル点が与えられた多項式系の解であるかどうかを判定する関数
-pub fn is_possible_solution(poly_list: &[Polynomial], sample: &[Root]) -> Result<bool> {
+pub fn is_possible_solution_by_resultant(
+    poly_list: &[Polynomial],
+    sample: &[Root],
+) -> Result<bool> {
     let mut poly_iter = poly_list.iter();
     loop {
         let Some(poly) = poly_iter.next() else {
@@ -33,7 +36,7 @@ pub fn is_possible_solution(poly_list: &[Polynomial], sample: &[Root]) -> Result
 }
 
 /// 区間演算によってサンプル点が多項式の解であるかどうかを判定する関数
-pub fn is_possible_solution_interval(poly_list: &[Polynomial], sample: &[Root]) -> Solution {
+pub fn is_solution_by_interval(poly_list: &[Polynomial], sample: &[Root]) -> Solution {
     let mut sample = sample.to_vec();
 
     for poly in poly_list {
