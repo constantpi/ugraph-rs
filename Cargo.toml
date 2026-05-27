@@ -10,3 +10,8 @@ num = "0.4.3"
 num-traits = "0.2.19"
 rand = "0.10.1"
 vec1 = "1.12.1"
+
+lalrpop-util = { version = "0.23.1", features = ["lexer", "unicode"] }
+
+[build-dependencies]
+lalrpop = "0.23.1"
