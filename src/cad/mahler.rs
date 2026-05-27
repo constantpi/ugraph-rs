@@ -147,7 +147,14 @@ fn add_unsigned_mahler(m1: &UnsignedMahler, m2: &UnsignedMahler) -> UnsignedMahl
     }
 }
 
-fn evaluate_polynomial_by_mahler(poly: &Polynomial, sample: &[Root]) {
+pub enum MahlerResult {
+    Positive,
+    Negative,
+    Zero,
+    Uncertain,
+}
+
+pub fn evaluate_polynomial_by_mahler(poly: &Polynomial, sample: &[Root]) -> MahlerResult {
     let mut term_mahlers = Vec::new();
     for (exp, coeff) in poly.lex_iter() {
         let Some(coeff_mahler) = rational_to_signed_mahler(coeff) else {
@@ -179,12 +186,32 @@ fn evaluate_polynomial_by_mahler(poly: &Polynomial, sample: &[Root]) {
     if let Some((first, rest)) = term_mahlers.split_first() {
         let first = signed_to_unsigned_mahler(first);
         let rest = rest
-            .into_iter()
+            .iter()
             .map(signed_to_unsigned_mahler)
             .collect::<Vec<_>>();
         // ここでfirstとrestを足し合わせる
         let result = rest
             .into_iter()
             .fold(first, |acc, m| add_unsigned_mahler(&acc, &m));
+        if result.lower > BigRational::zero() {
+            MahlerResult::Positive
+        } else if result.upper < BigRational::zero() {
+            MahlerResult::Negative
+        } else {
+            // 幅を計算する
+            let width = &result.upper - &result.lower;
+            // Landauの不等式による上界と比較する。width * 2^log_landau_bound < 1ならば符号が確定する
+            let bound =
+                BigRational::from_integer(BigInt::from(2).pow(result.log_landau_bound as u32));
+            if width * bound < BigRational::from_integer(BigInt::from(1)) {
+                // zeroになる
+                MahlerResult::Zero
+            } else {
+                MahlerResult::Uncertain
+            }
+        }
+    } else {
+        // 全ての項が0だった場合は0になる
+        MahlerResult::Zero
     }
 }
