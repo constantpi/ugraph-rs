@@ -220,6 +220,10 @@ fn main() -> Result<()> {
     let polys = read_file_to_polynomial("inputs/circle.poly")?;
     let solution = find_solution(&polys)?;
     println!("Solution for circle.poly: {}", solution);
+
+    let polys = read_file_to_polynomial("inputs/quadratic.poly")?;
+    let solution = find_solution(&polys)?;
+    println!("Solution for quadratic.poly: {}", solution);
     Ok(())
 }
 

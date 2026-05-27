@@ -61,6 +61,10 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
         }
         acc
     };
+    println!(
+        "Possible solutions after resultant check: {}",
+        possible_solutions.len()
+    );
     let mut ans = None;
     for solution in &possible_solutions {
         if let Solution::Exist(refined_solution) = is_solution_by_interval(polinomials, solution) {
