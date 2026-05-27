@@ -1,4 +1,4 @@
-use num::{BigRational, One, Zero};
+use num::{BigRational, One, ToPrimitive, Zero};
 use vec1::{Vec1, vec1};
 
 use super::{UnivariatePolynomial, uni_poly_derivative, uni_poly_div, uni_poly_remainder};
@@ -282,7 +282,19 @@ impl std::fmt::Display for Root {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.range {
             Range::Exact(root) => write!(f, "{root}"),
-            Range::Interval(lower, upper) => write!(f, "[{}, {}] ({})", lower, upper, self.poly),
+            // Range::Interval(lower, upper) => write!(f, "[{}, {}] ({})", lower, upper, self.poly),
+            Range::Interval(lower, upper) => {
+                // 両端がf64で一致したらf64で表示する
+                let range_str = if let (Some(lower_f64), Some(upper_f64)) =
+                    (lower.to_f64(), upper.to_f64())
+                    && lower_f64 == upper_f64
+                {
+                    format!("{}", lower_f64)
+                } else {
+                    format!("[{}, {}]", lower, upper)
+                };
+                write!(f, "{} ({})", range_str, self.poly)
+            }
         }
     }
 }
