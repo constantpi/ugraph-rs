@@ -86,8 +86,8 @@ fn ast_to_polynomial_using_map(
 }
 
 /// AstからPolynomialを生成する
-pub fn ast_to_polynomial(expr: &Expr) -> Result<Polynomial> {
-    let vars = extract_variables(expr);
+pub fn ast_to_polynomial(expr: &[Expr]) -> Result<Vec<Polynomial>> {
+    let vars = expr.iter().flat_map(extract_variables).collect::<Vec<_>>();
     // sortして重複を削除
     let vars = {
         let mut vars = vars;
@@ -100,5 +100,7 @@ pub fn ast_to_polynomial(expr: &Expr) -> Result<Polynomial> {
         .enumerate()
         .map(|(i, name)| (name, i))
         .collect();
-    ast_to_polynomial_using_map(expr, &var_map)
+    expr.iter()
+        .map(|e| ast_to_polynomial_using_map(e, &var_map))
+        .collect()
 }
