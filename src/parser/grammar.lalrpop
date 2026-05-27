@@ -1,0 +1,47 @@
+use std::str::FromStr;
+
+grammar;
+
+pub Expr: crate::parser::ast::Expr = {
+    <l:Expr> "+" <r:Term> =>
+        crate::parser::ast::Expr::Add(Box::new(l), Box::new(r)),
+
+    <l:Expr> "-" <r:Term> =>
+        crate::parser::ast::Expr::Sub(Box::new(l), Box::new(r)),
+
+    Term,
+};
+
+Term: crate::parser::ast::Expr = {
+    <l:Term> "*" <r:Unary> =>
+        crate::parser::ast::Expr::Mul(Box::new(l), Box::new(r)),
+
+    Unary,
+};
+
+Unary: crate::parser::ast::Expr = {
+    "-" <x:Unary> =>
+        crate::parser::ast::Expr::Neg(Box::new(x)),
+
+    Power,
+};
+
+Power: crate::parser::ast::Expr = {
+    <base:Atom> "^" <n:r"[0-9]+"> =>
+        crate::parser::ast::Expr::Pow(
+            Box::new(base),
+            usize::from_str(n).unwrap()
+        ),
+
+    Atom,
+};
+
+Atom: crate::parser::ast::Expr = {
+    <n:r"[0-9]+"> =>
+        crate::parser::ast::Expr::Num(i64::from_str(n).unwrap()),
+
+    <id:r"[A-Za-z_][A-Za-z0-9_]*"> =>
+        crate::parser::ast::Expr::Var(id.to_string()),
+
+    "(" <e:Expr> ")" => e,
+};
