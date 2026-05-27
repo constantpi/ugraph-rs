@@ -48,7 +48,7 @@ pub fn is_solution_by_interval(poly_list: &[Polynomial], sample: &[Root]) -> Sol
                 MahlerResult::Uncertain => {
                     // 符号が確定していない場合は、サンプル点をさらに精密化する
                     for root in sample.iter_mut() {
-                        if let Some(refined) = refine_root(root) {
+                        if let Some(refined) = refine_root(root, false) {
                             *root = refined;
                         }
                     }

@@ -55,7 +55,7 @@ pub fn get_signed_range(root: &Root) -> SignedRange {
                 if let Some(is_positive) = is_sign_consistent(&lower, &upper) {
                     break (lower, upper, is_positive);
                 }
-                let (new_low, new_high) = refine_range(poly, &lower, &upper);
+                let (new_low, new_high) = refine_range(poly, &lower, &upper, false);
                 lower = new_low;
                 upper = new_high;
             };
