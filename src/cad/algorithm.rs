@@ -68,8 +68,8 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
     let mut ans = None;
     for solution in &possible_solutions {
         if let Solution::Exist(refined_solution) = is_solution_by_interval(polinomials, solution) {
-            print_sample_point(solution);
-            println!("This sample point is a possible solution.");
+            println!("Sample point: {}", sample_point_to_string(solution));
+            println!("This sample point is a solution.");
             ans = Some(refined_solution.clone());
         }
     }
@@ -79,15 +79,17 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
     })
 }
 
-fn print_sample_point(sample: &[Root]) {
-    print!("Sample point: (");
+fn sample_point_to_string(sample: &[Root]) -> String {
+    let mut s = String::new();
+    s.push('(');
     for (i, root) in sample.iter().enumerate() {
         if i > 0 {
-            print!(", ");
+            s.push_str(", ");
         }
-        print!("{}", root);
+        s.push_str(&format!("{}", root));
     }
-    println!(")");
+    s.push(')');
+    s
 }
 
 impl std::fmt::Display for Solution {
