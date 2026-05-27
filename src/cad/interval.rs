@@ -1,8 +1,7 @@
 use num::{BigRational, Signed};
-use num_traits::{One, Zero};
+use num_traits::Zero;
 
 use super::{Range, Root, refine_range};
-use crate::polynomial::Polynomial;
 
 /// 符号の確定した区間を表す構造体
 pub struct SignedInterval {
@@ -128,51 +127,5 @@ pub fn mul_ranges(range1: &SignedRange, range2: &SignedRange) -> SignedRange {
                 abs_upper,
             })
         }
-    }
-}
-
-/// 区間の正負と0をまたいでいるか
-pub enum SignRelation {
-    Positive,
-    Negative,
-    CrossZero(BigRational),
-}
-
-pub fn evaluate_polynomial_at_signed_range(poly: &Polynomial, sample: &[Root]) -> SignRelation {
-    let sample_ranges = sample.iter().map(get_signed_range).collect::<Vec<_>>();
-    let mut lower = BigRational::zero();
-    let mut upper = BigRational::zero();
-    for (exp, coeff) in poly.raw_iter() {
-        let product = exp
-            .as_slice()
-            .iter()
-            .zip(sample_ranges.iter())
-            .map(|(&e, r)| pow_range(r, e))
-            .fold(SignedRange::Exact(BigRational::one()), |acc, r| {
-                mul_ranges(&acc, &r)
-            });
-        let term_value = mul_constant_range(&product, coeff);
-        match term_value {
-            SignedRange::Exact(r) => {
-                upper += r.clone();
-                lower += r;
-            }
-            SignedRange::Interval(interval) => {
-                if interval.is_positive {
-                    upper += interval.abs_upper;
-                    lower += interval.abs_lower;
-                } else {
-                    upper -= interval.abs_lower;
-                    lower -= interval.abs_upper;
-                }
-            }
-        }
-    }
-    if lower.is_positive() {
-        SignRelation::Positive
-    } else if upper.is_negative() {
-        SignRelation::Negative
-    } else {
-        SignRelation::CrossZero(lower.abs().max(upper.abs()))
     }
 }
