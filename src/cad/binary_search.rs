@@ -70,7 +70,7 @@ fn interval_newton(
             midpoint.clone() + delta_abs_upper.clone(),
         )
     };
-    Some((new_lower, new_upper))
+    Some(round_to_lowbit_interval(&new_lower, &new_upper))
 }
 
 /// 解を含む範囲の精度を高める関数。
@@ -181,4 +181,18 @@ pub fn calc_sample_points(roots: &[Root]) -> Vec<Root> {
     }
 
     sample_points
+}
+
+/// 区間を表現する2つのBigRationalをもう少しbitの少ないものに変換する。lowerは下端、upperは上端を表す。
+fn round_to_lowbit_interval(
+    lower: &BigRational,
+    upper: &BigRational,
+) -> (BigRational, BigRational) {
+    let width = upper - lower;
+    // log2(width)を計算する。widthは正の有理数であることが保証されている。
+    let log_width = width.denom().bits() as i32 - width.numer().bits() as i32 + 5; // 5は安全マージン
+    let denom = BigRational::from_integer(2.into()).pow(log_width.max(10));
+    let lower_converted = (lower * &denom).floor() / &denom;
+    let upper_converted = (upper * &denom).ceil() / &denom;
+    (lower_converted, upper_converted)
 }
