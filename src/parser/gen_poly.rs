@@ -1,5 +1,4 @@
 use color_eyre::Result;
-use num::CheckedSub;
 use std::collections::HashMap;
 
 use super::Expr;

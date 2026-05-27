@@ -3,6 +3,7 @@ mod coordinate;
 mod graph;
 mod groebner;
 mod linear_algebra;
+mod parser;
 mod polyfactor;
 mod polynomial;
 
@@ -10,6 +11,7 @@ use crate::cad::{UnivariatePolynomial, find_solution, project_polynomial};
 use crate::coordinate::graph_to_polynomials;
 use crate::graph::{generate_graph, simplify_graph};
 use crate::linear_algebra::generate_random_linear_polynomials;
+use crate::parser::read_file_to_polynomial;
 use crate::polyfactor::rational_factorization;
 
 use color_eyre::Result;
@@ -214,6 +216,10 @@ fn main() -> Result<()> {
     }
     let solution = find_solution(&random_polynomials)?;
     println!("Solution for random linear polynomials: {}", solution);
+
+    let polys = read_file_to_polynomial("inputs/circle.poly")?;
+    let solution = find_solution(&polys)?;
+    println!("Solution for circle.poly: {}", solution);
     Ok(())
 }
 
