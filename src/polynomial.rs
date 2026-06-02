@@ -86,6 +86,14 @@ impl Exponent {
     pub fn as_slice(&self) -> &[u32] {
         &self.0
     }
+
+    pub fn get(&self, index: usize) -> Option<u32> {
+        self.0.get(index).cloned()
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = u32> {
+        self.0.iter().cloned()
+    }
 }
 // ExponentにAdd トレイトを実装
 impl std::ops::Add for Exponent {

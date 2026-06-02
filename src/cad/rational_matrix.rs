@@ -17,7 +17,7 @@ fn polynomial_matrix_to_rational_matrix(
 }
 
 /// BigRationalの行列の行列式を計算する関数
-fn determinant(matrix: &[Vec<BigRational>]) -> BigRational {
+pub fn determinant(matrix: &[Vec<BigRational>]) -> BigRational {
     let n = matrix.len();
     if n == 0 {
         return BigRational::one();
