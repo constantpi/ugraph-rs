@@ -58,7 +58,7 @@ fn determinant(matrix: &[Vec<BigRational>]) -> BigRational {
 }
 
 /// Polynomialの行列の行列式を計算する関数
-pub fn polynomial_matrix_determinant(matrix: Vec<Vec<Polynomial>>) -> Option<BigRational> {
+pub fn rational_matrix_determinant(matrix: Vec<Vec<Polynomial>>) -> Option<BigRational> {
     let rational_matrix = polynomial_matrix_to_rational_matrix(matrix)?;
     Some(determinant(&rational_matrix))
 }

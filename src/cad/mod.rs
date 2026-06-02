@@ -19,7 +19,7 @@ use lift::lifting;
 use mahler::{MahlerResult, evaluate_polynomial_by_mahler};
 pub use proj::project_polynomial;
 use proj::psc_0;
-use rational_matrix::polynomial_matrix_determinant;
+use rational_matrix::rational_matrix_determinant;
 use specialize::{evaluate_polynomial_at_constants, specialize_polynomial};
 use sturm::{Range, Root, find_unique_roots};
 pub use univariate::{UnivariatePolynomial, polynomial_to_univariate};
