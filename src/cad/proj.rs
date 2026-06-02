@@ -2,7 +2,7 @@ use crate::cad::matrix::{Matrix, generate_neg_list};
 use itertools::Itertools;
 use num::BigRational;
 
-use super::rational_matrix_determinant;
+use super::{polynomial_matrix_determinant, rational_matrix_determinant};
 use crate::polynomial::{Exponent, Polynomial};
 
 /// Polynomialから、最高次の項の次数と係数を取り出す関数。
@@ -92,8 +92,12 @@ fn psc(f: &[Polynomial], g: &[Polynomial], l: usize) -> Polynomial {
         return Polynomial::from_constant(det);
     }
 
-    let neg_list = generate_neg_list(size);
-    matrix.determinant(&neg_list)
+    if let Some(det) = polynomial_matrix_determinant(matrix.get_data()) {
+        det
+    } else {
+        let neg_list = generate_neg_list(size);
+        matrix.determinant(&neg_list)
+    }
 }
 
 fn psc_list(f: &[Polynomial], g: &[Polynomial]) -> Vec<Polynomial> {
