@@ -1,5 +1,19 @@
 3 * tan50^6 - 27 * tan50^4 + 33 * tan50^2-1 = 0
 tan60^2 - 3 = 0
 tan80^6 - 33 * tan80^4 + 27 * tan80^2 - 3 = 0
-a_x * tan80 - (1 - a_x) * tan50 = 0
-b_x * tan60 - (1 - b_x) * tan80 = 0
+tan60 > 0
+tan50 > 1
+tan50 < 2
+tan80 > 5
+
+x_a * tan80 - (1 - x_a) * tan50 = 0
+x_b * tan60 - (1 - x_b) * tan80 = 0
+y_a = x_a * tan80
+y_b = x_b * tan60
+
+z1 = x_b * (x_b - x_a)
+z2 = y_b * (y_b - y_a)
+z3 = z1 + z2
+z4 = x_b * (y_a - y_b)
+z5 = y_b * (x_b - x_a)
+z6 = z4 + z5
