@@ -10,13 +10,12 @@ pub fn factorization(poly: &Polynomial) -> Option<Vec<Polynomial>> {
     // まずは一変数の多項式かどうかを確認する
     let variables = poly
         .raw_iter()
-        .map(|(exps, _)| {
+        .flat_map(|(exps, _)| {
             exps.iter()
                 .enumerate()
                 .filter(|&(_, exp)| exp > 0)
                 .map(|(i, _)| i)
         })
-        .flatten()
         .collect::<Vec<_>>();
     let Some(var) = variables.first() else {
         // 変数がない場合は定数多項式なので、因数分解はできない
@@ -30,7 +29,7 @@ pub fn factorization(poly: &Polynomial) -> Option<Vec<Polynomial>> {
     let mut coeffs = vec![];
     for (exps, coeff) in poly.raw_iter() {
         let exps = exps.iter().collect::<Vec<_>>();
-        if let Some(exp) = exps.get(*var as usize) {
+        if let Some(exp) = exps.get(*var) {
             // coeffs[exp] = coeffとしたいが、expは0から始まるとは限らないので、必要に応じてcoeffsを拡張する
             while coeffs.len() <= *exp as usize {
                 coeffs.push(BigRational::zero());
@@ -49,7 +48,7 @@ pub fn factorization(poly: &Polynomial) -> Option<Vec<Polynomial>> {
             let mut polyfactor = Polynomial::zero();
             for (i, coeff) in factor.iter().enumerate() {
                 let mut exps = vec![0; total_num_vars];
-                exps[*var as usize] = i as u32;
+                exps[*var] = i as u32;
                 polyfactor.add_term(Exponent::new(exps), coeff.clone());
             }
             polyfactor

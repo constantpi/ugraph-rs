@@ -25,14 +25,13 @@ pub fn find_solution(ineqs: &[(Polynomial, RelOp)]) -> Result<Solution> {
     let polinomials = ineqs.iter().map(|(p, _)| p.clone()).collect::<Vec<_>>();
     let polinomials = polinomials
         .into_iter()
-        .map(|poly| {
+        .flat_map(|poly| {
             if let Some(factors) = factorization(&poly) {
                 factors
             } else {
                 vec![poly]
             }
         })
-        .flatten()
         .collect::<Vec<_>>();
     // 変数の数をまずは取得
     let Some(num_vars) = polinomials
