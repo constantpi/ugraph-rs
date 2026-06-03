@@ -23,6 +23,18 @@ pub struct Inequality {
     right: Expr,
 }
 
+impl Inequality {
+    pub fn get_left(&self) -> &Expr {
+        &self.left
+    }
+    pub fn get_op(&self) -> RelOp {
+        self.op
+    }
+    pub fn get_right(&self) -> &Expr {
+        &self.right
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Expr {
     Num(i64),
@@ -35,8 +47,8 @@ pub enum Expr {
 }
 
 /// Parse an input string into `ast::Expr` using the LALRPOP-generated parser.
-pub fn parse_str(input: &str) -> Result<Expr> {
-    grammar::ExprParser::new()
+pub fn parse_str(input: &str) -> Result<Inequality> {
+    grammar::InequalityParser::new()
         .parse(input)
         .map_err(|e| color_eyre::eyre::eyre!("parse error: {:?}", e))
 }
@@ -49,8 +61,8 @@ mod tests {
 
     #[test]
     fn test_parse_num() {
-        let expr = parse_str("-(x^2 + 1)^3 + 42").unwrap();
-        let ans = Add(
+        let expr = parse_str("-(x^2 + 1)^3 + 42 = 0").unwrap();
+        let left = Add(
             Box::new(Neg(Box::new(Pow(
                 Box::new(Add(
                     Box::new(Pow(Box::new(Var("x".to_string())), 2)),
@@ -60,13 +72,25 @@ mod tests {
             )))),
             Box::new(Num(42)),
         );
+        let right = Num(0);
+        let ans = Inequality {
+            left,
+            op: RelOp::Eq,
+            right,
+        };
         assert_eq!(expr, ans);
 
-        let expr = parse_str("-x^2 + 1").unwrap();
-        let ans = Add(
+        let expr = parse_str("-x^2 + 1 = 0").unwrap();
+        let left = Add(
             Box::new(Neg(Box::new(Pow(Box::new(Var("x".to_string())), 2)))),
             Box::new(Num(1)),
         );
+        let right = Num(0);
+        let ans = Inequality {
+            left,
+            op: RelOp::Eq,
+            right,
+        };
         assert_eq!(expr, ans);
     }
 }

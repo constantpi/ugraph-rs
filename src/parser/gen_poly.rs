@@ -1,8 +1,15 @@
 use color_eyre::Result;
 use std::collections::HashMap;
 
-use super::Expr;
+use super::{Expr, Inequality, RelOp};
 use crate::polynomial::{Exponent, Polynomial};
+
+/// 不等式から変数集合の特定
+fn extract_variables_from_inequality(ineq: &Inequality) -> Vec<String> {
+    let mut vars = extract_variables(ineq.get_left());
+    vars.extend(extract_variables(ineq.get_right()));
+    vars
+}
 
 /// まずはAstを見てそこから変数集合を特定する
 fn extract_variables(expr: &Expr) -> Vec<String> {
@@ -85,9 +92,22 @@ fn ast_to_polynomial_using_map(
     Ok(poly)
 }
 
+fn ineq_to_polynomial_using_map(
+    ineq: &Inequality,
+    var_map: &HashMap<String, usize>,
+) -> Result<(Polynomial, RelOp)> {
+    let left_poly = ast_to_polynomial_using_map(ineq.get_left(), var_map)?;
+    let right_poly = ast_to_polynomial_using_map(ineq.get_right(), var_map)?;
+    let poly = left_poly - right_poly;
+    Ok((poly, ineq.get_op()))
+}
+
 /// AstからPolynomialを生成する
-pub fn ast_to_polynomial(expr: &[Expr]) -> Result<Vec<Polynomial>> {
-    let vars = expr.iter().flat_map(extract_variables).collect::<Vec<_>>();
+pub fn ast_to_polynomial(expr: &[Inequality]) -> Result<Vec<(Polynomial, RelOp)>> {
+    let vars = expr
+        .iter()
+        .flat_map(extract_variables_from_inequality)
+        .collect::<Vec<_>>();
     // sortして重複を削除
     let vars = {
         let mut vars = vars;
@@ -101,6 +121,6 @@ pub fn ast_to_polynomial(expr: &[Expr]) -> Result<Vec<Polynomial>> {
         .map(|(i, name)| (name, i))
         .collect();
     expr.iter()
-        .map(|e| ast_to_polynomial_using_map(e, &var_map))
+        .map(|e| ineq_to_polynomial_using_map(e, &var_map))
         .collect()
 }
