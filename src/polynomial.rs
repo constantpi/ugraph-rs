@@ -94,6 +94,17 @@ impl Exponent {
     pub fn iter(&self) -> impl Iterator<Item = u32> {
         self.0.iter().cloned()
     }
+
+    /// exp>0となるような変数が最初から数えていくつあるかを返す関数
+    pub fn count_nonzero_from_start(&self) -> usize {
+        self.0
+            .iter()
+            .enumerate()
+            .filter(|(_, e)| **e > 0)
+            .map(|(i, _)| i + 1)
+            .max()
+            .unwrap_or(0)
+    }
 }
 // ExponentにAdd トレイトを実装
 impl std::ops::Add for Exponent {
@@ -257,6 +268,15 @@ impl Polynomial {
         let mut p = Polynomial::zero();
         p.add_term(Exponent::new(Vec::new()), constant);
         p
+    }
+
+    /// 実質的に何変数の関数かを返す関数
+    pub fn num_vars(&self) -> usize {
+        self.raw_iter()
+            .filter(|(_exp, coeff)| !coeff.is_zero())
+            .map(|(exp, _coeff)| exp.count_nonzero_from_start())
+            .max()
+            .unwrap_or(0)
     }
 }
 
