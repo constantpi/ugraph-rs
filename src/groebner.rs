@@ -160,7 +160,7 @@ pub fn groebner_basis_for_equalities(
         .into_iter()
         .map(|p| (p, RelOp::Eq))
         .collect::<Vec<_>>();
-    result.extend(inequalities.into_iter());
+    result.extend(inequalities);
     result
 }
 

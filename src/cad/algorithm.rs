@@ -44,7 +44,7 @@ pub fn find_solution(ineqs: &[(Polynomial, RelOp)]) -> Result<Solution> {
         ineqs_by_num_vars
     };
     // まず変数が0個のものは処理しておく
-    if is_solution_by_interval(&ineqs_by_num_vars[0], &vec![]) == Solution::NoSolution {
+    if is_solution_by_interval(&ineqs_by_num_vars[0], &[]) == Solution::NoSolution {
         return Ok(Solution::NoSolution);
     }
     let mut current_num_vars = num_vars;
@@ -73,15 +73,12 @@ pub fn find_solution(ineqs: &[(Polynomial, RelOp)]) -> Result<Solution> {
     // historyを逆順にたどりながら、sample_pointsをliftingしていく
     for polynomials in history.into_iter().rev() {
         // liftingの前に、sample_pointsがineqsを満たすかどうかを判定する
-        sample_points = sample_points
-            .into_iter()
-            .filter(|sample| {
+        sample_points.retain(|sample| {
                 matches!(
                     is_solution_by_interval(&ineqs_by_num_vars[current_num_vars], sample),
                     Solution::Exist(_)
                 )
-            })
-            .collect();
+            });
         println!(
             "sample points before lifting: {}, current_num_vars: {}",
             sample_points.len(),
@@ -95,15 +92,12 @@ pub fn find_solution(ineqs: &[(Polynomial, RelOp)]) -> Result<Solution> {
             current_num_vars
         );
     }
-    sample_points = sample_points
-        .into_iter()
-        .filter(|sample| {
+    sample_points.retain(|sample| {
             matches!(
                 is_solution_by_interval(&ineqs_by_num_vars[current_num_vars], sample),
                 Solution::Exist(_)
             )
-        })
-        .collect();
+        });
     if sample_points.iter().any(|sample| sample.len() != num_vars) {
         return Err(color_eyre::eyre::eyre!(
             "Unexpected error: Sample points have incorrect number of variables"
@@ -112,7 +106,7 @@ pub fn find_solution(ineqs: &[(Polynomial, RelOp)]) -> Result<Solution> {
     println!("Total sample points after lifting: {}", sample_points.len());
     let mut ans = None;
     for solution in &sample_points {
-        if let Solution::Exist(refined_solution) = is_solution_by_interval(&ineqs, solution) {
+        if let Solution::Exist(refined_solution) = is_solution_by_interval(ineqs, solution) {
             println!("Sample point: {}", sample_point_to_string(solution));
             println!("This sample point is a solution.");
             ans = Some(refined_solution.clone());
