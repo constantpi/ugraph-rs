@@ -232,6 +232,11 @@ fn main() -> Result<()> {
     let polys = read_file_to_polynomial("inputs/quadratic.poly")?;
     let solution = find_solution(&polys)?;
     println!("Solution for quadratic.poly: {}", solution);
+
+    let polys = read_file_to_polynomial("inputs/sat.poly")?;
+    let solution = find_solution(&polys)?;
+    println!("Solution for sat.poly: {}", solution);
+
     Ok(())
 }
 
