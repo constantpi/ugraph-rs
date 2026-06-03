@@ -16,6 +16,20 @@ pub enum RelOp {
     Geq,
 }
 
+impl std::fmt::Display for RelOp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = match self {
+            RelOp::Eq => "=",
+            RelOp::Neq => "!=",
+            RelOp::Lt => "<",
+            RelOp::Gt => ">",
+            RelOp::Leq => "<=",
+            RelOp::Geq => ">=",
+        };
+        write!(f, "{}", s)
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Inequality {
     left: Expr,
