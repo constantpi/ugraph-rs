@@ -51,8 +51,8 @@ fn solve_linear_system(a: &[Vec<BigRational>], b: &[BigRational]) -> Option<Vec<
 
         // 対策成分を1にする
         let pivot_value = mat[i][i].clone();
-        for k in i..n {
-            mat[i][k] = mat[i][k].clone() / pivot_value.clone();
+        for mat_ik in mat[i].iter_mut().skip(i) {
+            *mat_ik = mat_ik.clone() / pivot_value.clone();
         }
         rhs[i] = rhs[i].clone() / pivot_value;
 
@@ -61,6 +61,7 @@ fn solve_linear_system(a: &[Vec<BigRational>], b: &[BigRational]) -> Option<Vec<
                 continue;
             }
             let factor = mat[j][i].clone() / mat[i][i].clone();
+            #[allow(clippy::needless_range_loop)]
             for k in i..n {
                 mat[j][k] = mat[j][k].clone() - factor.clone() * mat[i][k].clone();
             }
@@ -134,12 +135,11 @@ pub fn polynomial_matrix_determinant(matrix: Vec<Vec<Polynomial>>) -> Option<Pol
             .multi_cartesian_product()
             .map(|exps| {
                 // expsは行列式の結果である多項式の項の次数の組み合わせ
-                let term_value = exps
-                    .iter()
+
+                exps.iter()
                     .zip(subst_values.iter())
                     .map(|(&exp, &value)| BigRational::from_integer(BigInt::from(value).pow(exp)))
-                    .product::<BigRational>();
-                term_value
+                    .product::<BigRational>()
             })
             .collect::<Vec<_>>();
         coefficient_matrix.push(terms);
