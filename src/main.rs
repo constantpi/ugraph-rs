@@ -217,6 +217,14 @@ fn main() -> Result<()> {
     let solution = find_solution(&random_polynomials)?;
     println!("Solution for random linear polynomials: {}", solution);
 
+    let polys = read_file_to_polynomial("inputs/plain_problem.poly")?;
+    let basis = crate::groebner::groebner_basis(&polys);
+    for (i, poly) in basis.iter().enumerate() {
+        println!("Groebner basis polynomial {}: {}", i + 1, poly);
+    }
+    let solution = find_solution(&basis)?;
+    println!("Solution for plain_problem.poly: {}", solution);
+
     let polys = read_file_to_polynomial("inputs/circle.poly")?;
     let solution = find_solution(&polys)?;
     println!("Solution for circle.poly: {}", solution);
