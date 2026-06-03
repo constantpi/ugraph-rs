@@ -12,7 +12,7 @@ mod sturm;
 mod univariate;
 
 use algorithm::Solution;
-pub use algorithm::find_solution;
+pub use algorithm::{find_solution, find_solution_equality};
 pub use binary_search::calc_sample_points;
 use binary_search::{refine_range, refine_root};
 use judge::{is_possible_solution_by_resultant, is_solution_by_interval};

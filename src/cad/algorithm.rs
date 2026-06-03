@@ -4,6 +4,7 @@ use super::{
     Root, calc_sample_points, find_unique_roots, is_possible_solution_by_resultant,
     is_solution_by_interval, lifting, polynomial_to_univariate, project_polynomial,
 };
+use crate::parser::RelOp;
 use crate::polynomial::Polynomial;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -12,7 +13,16 @@ pub enum Solution {
     Exist(Vec<Root>),
 }
 
-pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
+pub fn find_solution_equality(polys: &[Polynomial]) -> Result<Solution> {
+    let ineqs = polys
+        .iter()
+        .map(|p| (p.clone(), RelOp::Eq))
+        .collect::<Vec<_>>();
+    find_solution(&ineqs)
+}
+
+pub fn find_solution(ineqs: &[(Polynomial, RelOp)]) -> Result<Solution> {
+    let polinomials = ineqs.iter().map(|(p, _)| p.clone()).collect::<Vec<_>>();
     // 変数の数をまずは取得
     let Some(num_vars) = polinomials
         .iter()
@@ -55,7 +65,7 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
     let possible_solutions = {
         let mut acc = Vec::new();
         for sample in sample_points {
-            if is_possible_solution_by_resultant(polinomials, &sample)? {
+            if is_possible_solution_by_resultant(&polinomials, &sample)? {
                 acc.push(sample);
             }
         }
@@ -67,7 +77,7 @@ pub fn find_solution(polinomials: &[Polynomial]) -> Result<Solution> {
     );
     let mut ans = None;
     for solution in &possible_solutions {
-        if let Solution::Exist(refined_solution) = is_solution_by_interval(polinomials, solution) {
+        if let Solution::Exist(refined_solution) = is_solution_by_interval(&polinomials, solution) {
             println!("Sample point: {}", sample_point_to_string(solution));
             println!("This sample point is a solution.");
             ans = Some(refined_solution.clone());
