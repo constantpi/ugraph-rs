@@ -1,6 +1,7 @@
 use num::BigRational;
 use num::Zero;
 
+use crate::parser::RelOp;
 use crate::polynomial::Exponent;
 use crate::polynomial::Polynomial;
 
@@ -144,6 +145,23 @@ fn remainder_reduce_basis(basis: &[Polynomial]) -> (bool, Vec<Polynomial>) {
     }
 
     (changed, reduced)
+}
+
+/// 等式制約についてはグレブナー基底を求める
+pub fn groebner_basis_for_equalities(
+    polynomials: &[(Polynomial, RelOp)],
+) -> Vec<(Polynomial, RelOp)> {
+    let (equalities, inequalities): (Vec<_>, Vec<_>) = polynomials
+        .iter()
+        .cloned()
+        .partition(|(_, op)| *op == RelOp::Eq);
+    let basis = groebner_basis(&equalities.into_iter().map(|(p, _)| p).collect::<Vec<_>>());
+    let mut result = basis
+        .into_iter()
+        .map(|p| (p, RelOp::Eq))
+        .collect::<Vec<_>>();
+    result.extend(inequalities.into_iter());
+    result
 }
 
 #[cfg(test)]
