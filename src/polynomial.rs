@@ -278,6 +278,11 @@ impl Polynomial {
             .max()
             .unwrap_or(0)
     }
+
+    /// 全部で何変数の関数かを返す関数
+    pub fn total_num_vars(&self) -> usize {
+        self.raw_iter().map(|(exp, _)| exp.len()).max().unwrap_or(0)
+    }
 }
 
 // PolynomialにAdd トレイトを実装

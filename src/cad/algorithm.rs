@@ -1,7 +1,7 @@
 use color_eyre::Result;
 
 use super::{
-    Root, calc_sample_points, find_unique_roots, is_solution_by_interval, lifting,
+    Root, calc_sample_points, factorization, find_unique_roots, is_solution_by_interval, lifting,
     polynomial_to_univariate, project_polynomial,
 };
 use crate::parser::RelOp;
@@ -23,6 +23,17 @@ pub fn find_solution_equality(polys: &[Polynomial]) -> Result<Solution> {
 
 pub fn find_solution(ineqs: &[(Polynomial, RelOp)]) -> Result<Solution> {
     let polinomials = ineqs.iter().map(|(p, _)| p.clone()).collect::<Vec<_>>();
+    let polinomials = polinomials
+        .into_iter()
+        .map(|poly| {
+            if let Some(factors) = factorization(&poly) {
+                factors
+            } else {
+                vec![poly]
+            }
+        })
+        .flatten()
+        .collect::<Vec<_>>();
     // 変数の数をまずは取得
     let Some(num_vars) = polinomials
         .iter()
@@ -74,11 +85,11 @@ pub fn find_solution(ineqs: &[(Polynomial, RelOp)]) -> Result<Solution> {
     for polynomials in history.into_iter().rev() {
         // liftingの前に、sample_pointsがineqsを満たすかどうかを判定する
         sample_points.retain(|sample| {
-                matches!(
-                    is_solution_by_interval(&ineqs_by_num_vars[current_num_vars], sample),
-                    Solution::Exist(_)
-                )
-            });
+            matches!(
+                is_solution_by_interval(&ineqs_by_num_vars[current_num_vars], sample),
+                Solution::Exist(_)
+            )
+        });
         println!(
             "sample points before lifting: {}, current_num_vars: {}",
             sample_points.len(),
@@ -93,11 +104,11 @@ pub fn find_solution(ineqs: &[(Polynomial, RelOp)]) -> Result<Solution> {
         );
     }
     sample_points.retain(|sample| {
-            matches!(
-                is_solution_by_interval(&ineqs_by_num_vars[current_num_vars], sample),
-                Solution::Exist(_)
-            )
-        });
+        matches!(
+            is_solution_by_interval(&ineqs_by_num_vars[current_num_vars], sample),
+            Solution::Exist(_)
+        )
+    });
     if sample_points.iter().any(|sample| sample.len() != num_vars) {
         return Err(color_eyre::eyre::eyre!(
             "Unexpected error: Sample points have incorrect number of variables"
