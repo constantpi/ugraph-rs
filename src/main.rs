@@ -7,7 +7,7 @@ mod parser;
 mod polyfactor;
 mod polynomial;
 
-use crate::cad::{UnivariatePolynomial, find_solution, project_polynomial};
+use crate::cad::{UnivariatePolynomial, find_solution, find_solution_equality, project_polynomial};
 use crate::coordinate::graph_to_polynomials;
 use crate::graph::{generate_graph, simplify_graph};
 use crate::linear_algebra::generate_random_linear_polynomials;
@@ -193,7 +193,7 @@ fn main() -> Result<()> {
     };
     println!("f1: {}", f1);
     println!("f2: {}", f2);
-    let solution = find_solution(&[f1, f2])?;
+    let solution = find_solution_equality(&[f1, f2])?;
 
     println!("Solution: {}", solution);
 
@@ -207,20 +207,20 @@ fn main() -> Result<()> {
     // for (i, poly) in polynomials.iter().enumerate() {
     //     println!("f{}: {}", i + 1, poly);
     // }
-    let solution = find_solution(&polynomials)?;
+    let solution = find_solution_equality(&polynomials)?;
     println!("Solution for triangle graph: {}", solution);
 
     let random_polynomials = generate_random_linear_polynomials(4, 4)?;
     for (i, poly) in random_polynomials.iter().enumerate() {
         println!("Random polynomial {}: {}", i + 1, poly);
     }
-    let solution = find_solution(&random_polynomials)?;
+    let solution = find_solution_equality(&random_polynomials)?;
     println!("Solution for random linear polynomials: {}", solution);
 
     let polys = read_file_to_polynomial("inputs/plain_problem.poly")?;
-    let basis = crate::groebner::groebner_basis(&polys);
-    for (i, poly) in basis.iter().enumerate() {
-        println!("Groebner basis polynomial {}: {}", i + 1, poly);
+    let basis = crate::groebner::groebner_basis_for_equalities(&polys);
+    for (i, (poly, relop)) in basis.iter().enumerate() {
+        println!("Groebner basis polynomial {}: {} {}", i + 1, poly, relop);
     }
     let solution = find_solution(&basis)?;
     println!("Solution for plain_problem.poly: {}", solution);
