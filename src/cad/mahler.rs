@@ -1,6 +1,7 @@
 use num::{BigInt, BigRational, Signed, Zero};
 
 use super::{Range, Root, UnivariatePolynomial, refine_range};
+use crate::parser::RelOp;
 use crate::polyfactor::rational_to_integer_coeffs;
 use crate::polynomial::Polynomial;
 
@@ -339,5 +340,17 @@ pub fn evaluate_polynomial_by_mahler(poly: &Polynomial, sample: &[Root]) -> Mahl
     } else {
         // 全ての項が0だった場合は0になる
         MahlerResult::Zero
+    }
+}
+
+impl MahlerResult {
+    // MahlerResultがRelOpの等号を満たすかどうかを判定する関数
+    pub fn satisfies(&self, rel_op: RelOp) -> Option<bool> {
+        match self {
+            MahlerResult::Uncertain => None,
+            MahlerResult::Zero => Some(matches!(rel_op, RelOp::Eq | RelOp::Leq | RelOp::Geq)),
+            MahlerResult::Positive => Some(matches!(rel_op, RelOp::Neq | RelOp::Gt | RelOp::Geq)),
+            MahlerResult::Negative => Some(matches!(rel_op, RelOp::Neq | RelOp::Lt | RelOp::Leq)),
+        }
     }
 }
