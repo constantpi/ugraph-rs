@@ -74,24 +74,6 @@ pub fn specialize_polynomial(
     polynomial_to_univariate(&substituted_poly).ok()
 }
 
-/// すべての変数に値を代入して定数にする関数
-/// ただしこれは非ゼロだったら解でないことを保証する。
-/// ゼロになる場合は、解である可能性があるが、他の条件も満たす必要がある。
-pub fn evaluate_polynomial_at_constants(
-    poly: &Polynomial,
-    values: &[UnivariatePolynomial],
-) -> Option<BigRational> {
-    let current_num_vars = values.len();
-    let substituted_poly =
-        values
-            .iter()
-            .enumerate()
-            .try_fold(poly.clone(), |current_poly, (i, value)| {
-                substitute_first_variable(&current_poly, value, current_num_vars - i - 1)
-            })?;
-    substituted_poly.as_constant()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
