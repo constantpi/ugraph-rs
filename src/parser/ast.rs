@@ -6,6 +6,23 @@ lalrpop_mod!(
     "/parser/grammar.rs"
 );
 
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
+pub enum RelOp {
+    Eq,
+    Neq,
+    Lt,
+    Gt,
+    Leq,
+    Geq,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Inequality {
+    left: Expr,
+    op: RelOp,
+    right: Expr,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Expr {
     Num(i64),

@@ -1,6 +1,21 @@
 use std::str::FromStr;
 
 grammar;
+pub Inequality: crate::parser::ast::Inequality = {
+    <l:Expr> <op:r"!=|>=|<=|>|<|="> <r:Expr> => {
+
+        let rel = match op {
+            "!=" => crate::parser::ast::RelOp::Neq,
+            ">=" => crate::parser::ast::RelOp::Geq,
+            "<=" => crate::parser::ast::RelOp::Leq,
+            ">"  => crate::parser::ast::RelOp::Gt,
+            "<"  => crate::parser::ast::RelOp::Lt,
+            "="  => crate::parser::ast::RelOp::Eq,
+            _ => panic!("Unexpected operator: {}", op),
+        };
+        crate::parser::ast::Inequality { left:l, op: rel, right:r }
+    },
+};
 
 pub Expr: crate::parser::ast::Expr = {
     <l:Expr> "+" <r:Term> =>
